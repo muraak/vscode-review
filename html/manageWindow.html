@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Review Manage Window</title>
+</head>
+
+<body>
+    <table border="1" id="rptable">
+    </table>
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        var rps = document.getElementsByClassName('rp');
+        Array.prototype.forEach.call(rps, function(element) {
+            element.onclick = function () {
+                vscode.postMessage({
+                    command: "jump",
+                    id: element.id
+                });
+            }
+        });
+
+        var edits = document.getElementsByClassName('comment');
+        Array.prototype.forEach.call(edits, function(element) {
+            element.onclick = function() {
+                element.setAttribute("contenteditable", "true");
+            }
+
+            // onChange() doesn't fire fot contenteditable element!
+            element.onblur = function() {
+                vscode.postMessage({
+                    command: "comment",
+                    id: element.id,
+                    comment: element.innerHTML
+                });
+            };
+        });
+
+        var rmvs = document.getElementsByClassName('remove');
+        Array.prototype.forEach.call(rmvs, function(element) {
+            element.onclick = function() {
+                vscode.postMessage({
+                    command: "remove",
+                    id: element.id,
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

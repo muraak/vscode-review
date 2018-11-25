@@ -1,0 +1,55 @@
+{
+    "name": "vscode-review",
+    "displayName": "vscode-review",
+    "description": "helping code review on vscode",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.29.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:review.showReviewPoints",
+        "onCommand:review.addReviewPoint"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "review.showReviewPoints",
+                "title": "Show Review Points"
+            },
+            {
+                "command": "review.addReviewPoint",
+                "title": "Add Review Point"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "review.addReviewPoint"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.21"
+    },
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.2",
+        "request": "^2.88.0",
+        "shortid": "^2.2.14"
+    }
+}
