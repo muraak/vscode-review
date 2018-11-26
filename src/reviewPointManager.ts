@@ -75,7 +75,7 @@ export class ReviewPointManager {
             html += "comment: <br/>";
             html += "<div class='comment' style='margin-left: 30px;' id='cmt." + element.id + "'>" + element.comment + "</div>";
             html += "<button class='remove' id='rmv." + element.id  + "'>remove</button>";
-            html += "</td></tr>";    
+            html += "</td></tr>";
         });
     
         return html;

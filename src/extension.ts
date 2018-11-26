@@ -7,9 +7,9 @@ import * as path from 'path';
 import { ReviewPointManager } from './reviewPointManager';
 
 
-let _context :vscode.ExtensionContext;
+let _context: vscode.ExtensionContext;
 
-let reviewPointManager :ReviewPointManager;
+let reviewPointManager: ReviewPointManager;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -24,7 +24,8 @@ export function activate(context: vscode.ExtensionContext) {
     // The commandId parameter must match the command field in package.json
 
     context.subscriptions.push(vscode.commands.registerCommand('review.showReviewPoints', () => {
-        showManageWindow(context);}));
+        showManageWindow(context);
+    }));
     context.subscriptions.push(vscode.commands.registerCommand('review.addReviewPoint', addReviewPoint));
 
     _context = context;
@@ -59,7 +60,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
             switch (message.command) {
                 case 'jump':
                     let rp = reviewPointManager.findById(message.id);
-                    if(rp) {
+                    if (rp) {
                         openFileWithRange(rp.file, rp.range);
                     }
                     return;
@@ -69,7 +70,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
                 case 'remove':
                     reviewPointManager.remove(message.id);
                     // update html
-                    if(wv_panel) {
+                    if (wv_panel) {
                         wv_panel.webview.html = getManageWindowHtml(context);
                     }
                     return;
@@ -78,19 +79,17 @@ function showManageWindow(context: vscode.ExtensionContext) {
 
         // Release the wv_panel when that is disposed
         wv_panel.onDidDispose(() => {
-           wv_panel = undefined;
+            wv_panel = undefined;
         });
     }
 }
 
-function addReviewPoint()
-{
+function addReviewPoint() {
     const editor = vscode.window.activeTextEditor;
 
-    if(editor)
-    {
+    if (editor) {
         reviewPointManager.add(
-            editor.document.uri.fsPath, 
+            vscode.workspace.asRelativePath(editor.document.uri.fsPath),
             new vscode.Range(editor.selection.start, editor.selection.end));
         showManageWindow(_context);
     }
@@ -100,7 +99,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     let html = fs.readFileSync(
         vscode.Uri.file(path.join(context.extensionPath, 'html', 'manageWindow.html')).fsPath,
         'utf8');
-    
+
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
     $("#rptable").html(reviewPointManager.getAsHtml());
@@ -109,35 +108,41 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
 }
 
 function openFileWithRange(file: string, range: vscode.Range) {
-    vscode.workspace.openTextDocument(file).then(document => {
-        vscode.window.showTextDocument(document, vscode.ViewColumn.One).then((editor) => {
-            
-            // heighlight range
-            let decorator: vscode.TextEditorDecorationType;
-            decorator = vscode.window.createTextEditorDecorationType({
-                'borderWidth': '1px',
-                'borderRadius': '2px',
-                'borderStyle': 'solid',
-                'light': {
-                    'backgroundColor': 'rgba(58, 70, 101, 0.3)',
-                    'borderColor': 'rgba(58, 70, 101, 0.4)',
-                    'color': 'rgba(255, 0, 0, 1.0)'
-                },
-                'dark': {
-                    'backgroundColor': 'rgba(117, 141, 203, 0.3)',
-                    'borderColor': 'rgba(117, 141, 203, 0.4)',
-                    'color': 'rgba(255, 255, 0, 1.0)'
-                }
-            });
-            editor.setDecorations(decorator, [range]);
+    if (vscode.workspace.workspaceFolders) {
+        // NOTICE: We still don't support the multi-root and onlty look at the first workspace folder for now.
+        if (vscode.workspace.workspaceFolders.length >= 1) {
+            let workspace_path = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            vscode.workspace.openTextDocument(path.join(workspace_path, file)).then(document => {
+                vscode.window.showTextDocument(document, vscode.ViewColumn.One).then((editor) => {
 
-            // move cursor
-            const position = editor.selection.active;
-            let newPosition = position.with(range.start.line, range.start.character);
-            let newSelection = new vscode.Selection(newPosition, newPosition);
-            editor.selection = newSelection;
-            
-            editor.revealRange(range);
-        });
-    });
+                    // heighlight range
+                    let decorator: vscode.TextEditorDecorationType;
+                    decorator = vscode.window.createTextEditorDecorationType({
+                        'borderWidth': '1px',
+                        'borderRadius': '2px',
+                        'borderStyle': 'solid',
+                        'light': {
+                            'backgroundColor': 'rgba(58, 70, 101, 0.3)',
+                            'borderColor': 'rgba(58, 70, 101, 0.4)',
+                            'color': 'rgba(255, 0, 0, 1.0)'
+                        },
+                        'dark': {
+                            'backgroundColor': 'rgba(117, 141, 203, 0.3)',
+                            'borderColor': 'rgba(117, 141, 203, 0.4)',
+                            'color': 'rgba(255, 255, 0, 1.0)'
+                        }
+                    });
+                    editor.setDecorations(decorator, [range]);
+
+                    // move cursor
+                    const position = editor.selection.active;
+                    let newPosition = position.with(range.start.line, range.start.character);
+                    let newSelection = new vscode.Selection(newPosition, newPosition);
+                    editor.selection = newSelection;
+
+                    editor.revealRange(range);
+                });
+            });
+        }
+    }
 }
