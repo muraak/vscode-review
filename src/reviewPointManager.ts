@@ -16,6 +16,36 @@ export class ReviewPoint {
         this.id = shortid.generate();
         this.comment = "add comment here.";
     }
+
+    public needToUpdate(range :vscode.Range, text :string)
+    {
+        if(this.isBefore(range) == true) {
+            if(this.isAddedNewLine(text) == true) {
+                return true;
+            }
+        }
+
+        if(this.isOverlapped(range) == true) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    private isOverlapped(range_chenged :vscode.Range)
+    {
+        return false;
+    }
+
+    private isBefore(range_chenged :vscode.Range)
+    {
+        return range_chenged.end.line < this.range.start.line;
+    }
+
+    private isAddedNewLine(text :string)
+    {
+        return false;
+    }
 }
 
 export class ReviewPointManager {
