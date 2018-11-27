@@ -31,6 +31,17 @@ export function activate(context: vscode.ExtensionContext) {
     _context = context;
 
     reviewPointManager = new ReviewPointManager();
+
+    vscode.workspace.onDidChangeTextDocument((e) =>{
+        // CAUTION:
+        // This event fires so frquently.
+        // So return A.S.A.P if not nessesary!
+        if(reviewPointManager) {
+            if(reviewPointManager.isBelong(vscode.workspace.asRelativePath(e.document.uri.fsPath)) == true){
+                console.log("catched!");
+            }
+        }
+    });
 }
 
 // this method is called when your extension is deactivated
@@ -91,6 +102,7 @@ function addReviewPoint() {
         reviewPointManager.add(
             vscode.workspace.asRelativePath(editor.document.uri.fsPath),
             new vscode.Range(editor.selection.start, editor.selection.end));
+        
         showManageWindow(_context);
     }
 }
@@ -107,17 +119,22 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     return $.html();
 }
 
+let current_decorator : vscode.TextEditorDecorationType | undefined = undefined;
+
 function openFileWithRange(file: string, range: vscode.Range) {
     if (vscode.workspace.workspaceFolders) {
-        // NOTICE: We still don't support the multi-root and onlty look at the first workspace folder for now.
+        // NOTICE: We still don't support the multi-root and only look at the first workspace folder for now.
         if (vscode.workspace.workspaceFolders.length >= 1) {
             let workspace_path = vscode.workspace.workspaceFolders[0].uri.fsPath;
             vscode.workspace.openTextDocument(path.join(workspace_path, file)).then(document => {
                 vscode.window.showTextDocument(document, vscode.ViewColumn.One).then((editor) => {
 
+                    if(current_decorator) {
+                        // remove previous highlight 
+                        current_decorator.dispose();
+                    }
                     // heighlight range
-                    let decorator: vscode.TextEditorDecorationType;
-                    decorator = vscode.window.createTextEditorDecorationType({
+                    current_decorator = vscode.window.createTextEditorDecorationType({
                         'borderWidth': '1px',
                         'borderRadius': '2px',
                         'borderStyle': 'solid',
@@ -132,7 +149,7 @@ function openFileWithRange(file: string, range: vscode.Range) {
                             'color': 'rgba(255, 255, 0, 1.0)'
                         }
                     });
-                    editor.setDecorations(decorator, [range]);
+                    editor.setDecorations(current_decorator, [range]);
 
                     // move cursor
                     const position = editor.selection.active;

@@ -80,4 +80,11 @@ export class ReviewPointManager {
     
         return html;
     }
+
+    public isBelong(file :string) {
+        
+        let idx = this.rp_list.findIndex(x => { return (x.file === file); })
+
+        return idx >= 0; 
+    }
 }
