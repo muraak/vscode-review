@@ -37,8 +37,17 @@ export function activate(context: vscode.ExtensionContext) {
         // This event fires so frquently.
         // So return A.S.A.P if not nessesary!
         if(reviewPointManager) {
-            if(reviewPointManager.isBelong(vscode.workspace.asRelativePath(e.document.uri.fsPath)) == true){
-                console.log("catched!");
+            if(reviewPointManager.belongsTo(vscode.workspace.asRelativePath(e.document.uri.fsPath)) == true){
+                if(e.contentChanges.length > 0) {
+                    let updated = reviewPointManager.updateRanges(
+                        vscode.workspace.asRelativePath(e.document.uri.fsPath), 
+                        e.contentChanges[0].range, 
+                        e.contentChanges[0].text);
+
+                    if(updated === true) {
+                        wv_panel!.webview.html = getManageWindowHtml(context);
+                    }
+                }
             }
         }
     });
