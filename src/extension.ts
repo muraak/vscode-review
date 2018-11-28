@@ -42,7 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
                     let updated = reviewPointManager.updateRanges(
                         vscode.workspace.asRelativePath(e.document.uri.fsPath), 
                         e.contentChanges[0].range, 
-                        e.contentChanges[0].text);
+                        e.contentChanges[0].text,
+                        e.document);
 
                     if(updated === true) {
                         wv_panel!.webview.html = getManageWindowHtml(context);

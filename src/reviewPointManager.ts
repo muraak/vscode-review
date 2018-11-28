@@ -107,7 +107,7 @@ export class ReviewPointManager {
         return idx >= 0;
     }
 
-    public updateRanges(file: string, range: vscode.Range, text: string) {
+    public updateRanges(file: string, range: vscode.Range, text: string, document :vscode.TextDocument) {
 
         let updated = false;
 
@@ -116,10 +116,25 @@ export class ReviewPointManager {
                 if (range.end.isBeforeOrEqual(element.range.start)) {
                     let lines_changed = this.calcNumOfLines(range, text);
                     if (lines_changed !== 0) {
-                        this.findById(element.id)!.range = new vscode.Range(
-                            new vscode.Position(element.range.start.line + lines_changed, element.range.start.character),
-                            new vscode.Position(element.range.end.line + lines_changed, element.range.end.character)
-                        );
+                        if (lines_changed > 0) {
+                            this.findById(element.id)!.range = new vscode.Range(
+                                new vscode.Position(
+                                    element.range.start.line + lines_changed, 
+                                    text.split(/\r?\n/).pop()!.length/* + element.range.start.character*/),
+                                new vscode.Position(
+                                    element.range.end.line + lines_changed, 
+                                    element.range.end.character)
+                            );
+                        }
+                        else {
+                            this.findById(element.id)!.range = new vscode.Range(
+                                new vscode.Position(
+                                    element.range.start.line + lines_changed,
+                                    element.range.start.character + range.start.character),
+                                new vscode.Position(element.range.end.line + lines_changed, 
+                                    (element.range.start.line === element.range.end.line)?
+                                    element.range.end.character + range.start.character:element.range.end.character));
+                        }
 
                         updated = true;
                     }
