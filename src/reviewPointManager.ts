@@ -142,7 +142,7 @@ export class ReviewPointManager {
     {
         let range_new :vscode.Range | undefined = undefined;
 
-        if (range_chenged.end.isBeforeOrEqual(rp.range.start)) {
+        if (range_chenged.start.isBeforeOrEqual(rp.range.start) === true) {
             if(rp.range.start.line !== range_chenged.end.line) {
                 // we only update line pos of original range
                 let diff_of_lines = this.calcNumOfLines(range_chenged, text_changed);
@@ -171,6 +171,38 @@ export class ReviewPointManager {
                     );
                 }
             }
+        }
+        else if(range_chenged.intersection(rp.range)) {
+            // there is overlap between range_changed and rp.range
+            if(rp.range.end.line > range_chenged.end.line) {
+                // we only update line pos of original range
+                let diff_of_lines = this.calcNumOfLines(range_chenged, text_changed);
+
+                range_new = new vscode.Range(
+                    rp.range.start,
+                    new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character)
+                );
+            }
+            else {
+                // we have to both line pos and char pos of original range
+                let diff_of_lines = this.calcNumOfLines(range_chenged, text_changed);
+
+                if(diff_of_lines > 0) {
+                    // some lines were added
+                    range_new = new vscode.Range(
+                        rp.range.start,
+                        new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character + (range_chenged.end.character - range_chenged.start.character))
+                    );
+                }
+                else {
+                    // some lines were deleted
+                    range_new = new vscode.Range(
+                        rp.range.start,
+                        new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character + range_chenged.start.character)
+                    );
+                }
+            }
+
         }
 
         return range_new;
