@@ -113,31 +113,11 @@ export class ReviewPointManager {
 
         this.rp_list.forEach(element => {
             if (element.file === file) {
-                if (range.end.isBeforeOrEqual(element.range.start)) {
-                    let lines_changed = this.calcNumOfLines(range, text);
-                    if (lines_changed !== 0) {
-                        if (lines_changed > 0) {
-                            this.findById(element.id)!.range = new vscode.Range(
-                                new vscode.Position(
-                                    element.range.start.line + lines_changed, 
-                                    text.split(/\r?\n/).pop()!.length/* + element.range.start.character*/),
-                                new vscode.Position(
-                                    element.range.end.line + lines_changed, 
-                                    element.range.end.character)
-                            );
-                        }
-                        else {
-                            this.findById(element.id)!.range = new vscode.Range(
-                                new vscode.Position(
-                                    element.range.start.line + lines_changed,
-                                    element.range.start.character + range.start.character),
-                                new vscode.Position(element.range.end.line + lines_changed, 
-                                    (element.range.start.line === element.range.end.line)?
-                                    element.range.end.character + range.start.character:element.range.end.character));
-                        }
-
-                        updated = true;
-                    }
+                let range_new =  this.getNewRange(element, range, text);
+                // getNewRange() returns `undefined` if this review point is not necessary to update
+                if(range_new) {
+                    this.findById(element.id)!.range = range_new;
+                    updated = true;
                 }
             }
         });
@@ -156,5 +136,43 @@ export class ReviewPointManager {
         }
 
         return 0;
+    }
+
+    private getNewRange(rp :ReviewPoint, range_chenged :vscode.Range, text_changed :string)
+    {
+        let range_new :vscode.Range | undefined = undefined;
+
+        if (range_chenged.end.isBeforeOrEqual(rp.range.start)) {
+            if(rp.range.start.line !== range_chenged.end.line) {
+                // we only update line pos of original range
+                let diff_of_lines = this.calcNumOfLines(range_chenged, text_changed);
+
+                range_new = new vscode.Range(
+                    new vscode.Position(rp.range.start.line + diff_of_lines, rp.range.start.character),
+                    new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character)
+                );
+            }
+            else {
+                // we have to both line pos and char pos of original range
+                let diff_of_lines = this.calcNumOfLines(range_chenged, text_changed);
+
+                if(diff_of_lines > 0) {
+                    // some lines were added
+                    range_new = new vscode.Range(
+                        new vscode.Position(rp.range.start.line + diff_of_lines, range_chenged.end.character),
+                        new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character + range_chenged.end.character)
+                    );
+                }
+                else {
+                    // some lines were deleted
+                    range_new = new vscode.Range(
+                        new vscode.Position(rp.range.start.line + diff_of_lines, range_chenged.start.character),
+                        new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character + range_chenged.start.character)
+                    );
+                }
+            }
+        }
+
+        return range_new;
     }
 }

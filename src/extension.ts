@@ -95,6 +95,11 @@ function showManageWindow(context: vscode.ExtensionContext) {
                         wv_panel.webview.html = getManageWindowHtml(context);
                     }
                     return;
+                case 'clearHrt':
+                    if(current_decorator) {
+                        current_decorator.dispose();
+                    }
+                    return;
             }
         });
 

@@ -9,6 +9,7 @@
 </head>
 
 <body>
+    <button id="clearHrt">clear highright</button>
     <table border="1" id="rptable">
     </table>
     <script>
@@ -30,7 +31,7 @@
                 element.setAttribute("contenteditable", "true");
             }
 
-            // onChange() doesn't fire fot contenteditable element!
+            // onChange() doesn't fire for contenteditable element!
             element.onblur = function() {
                 vscode.postMessage({
                     command: "comment",
@@ -47,8 +48,14 @@
                     command: "remove",
                     id: element.id,
                 });
-            }
+            };
         });
+
+        document.getElementById("clearHrt").onclick = function(){
+            vscode.postMessage({
+                command: "clearHrt"
+            });
+        };
     </script>
 </body>
 
