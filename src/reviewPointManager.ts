@@ -15,37 +15,13 @@ export class ReviewPoint {
         this.id = shortid.generate();
         this.comment = "add comment here.";
     }
-
-    public needToUpdate(range: vscode.Range, text: string) {
-        if (this.isBefore(range) === true) {
-            if (this.isAddedNewLine(text) === true) {
-                return true;
-            }
-        }
-
-        if (this.isOverlapped(range) === true) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private isOverlapped(range_chenged: vscode.Range) {
-        return false;
-    }
-
-    private isBefore(range_chenged: vscode.Range) {
-        return range_chenged.end.line < this.range.start.line;
-    }
-
-    private isAddedNewLine(text: string) {
-        return false;
-    }
 }
 
 export class ReviewPointManager {
 
     private rp_list: ReviewPoint[] = [];
+
+    private replyEnable = false;
 
     public findById(id: string) {
         let rp = this.rp_list.find(x => { return x.id === id; });
@@ -87,7 +63,7 @@ export class ReviewPointManager {
             html += "<tr><td>";
             html += "<div id=" + element.id + " class='rp'>";
             html += "file: " + element.file + "<br/>";
-            html += "position: (" + element.range.start.line.toString() + ", ";
+            html += "range: (" + element.range.start.line.toString() + ", ";
             html += element.range.start.character.toString() + ") to (" + element.range.end.line.toString() + ", " + element.range.end.character.toString() + ")";
             html += "<br/>";
             html += "</div>";
