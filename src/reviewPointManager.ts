@@ -7,21 +7,66 @@ export class ReviewPoint {
     public range: vscode.Range;
     public comment: string;
     readonly id: string;
+    public history :ReviewPoint[] = [];
 
-    constructor(file: string, range: vscode.Range) {
+    constructor(file :string, range :vscode.Range, comment?:string, id?:string) {
         this.file = file;
         this.range = range;
-        const shortid = require('shortid');
-        this.id = shortid.generate();
-        this.comment = "add comment here.";
+        
+        if(!comment) {
+            this.comment = "add comment here.";
+        }
+        else {
+            this.comment = comment;
+        }
+
+        if(!id) {
+            const shortid = require('shortid');
+            this.id = shortid.generate();
+        }
+        else {
+            this.id = id;
+        }
+    }
+
+    public save()
+    {
+        this.history.push(this.deepcopy());
+        this.reflesh();
+    }
+
+    public reflesh()
+    {
+        this.comment =  "add comment here.";
+    }
+
+    public deepcopy() : ReviewPoint {
+        return new ReviewPoint(
+            this.file, 
+            new vscode.Range(
+                new vscode.Position(this.range.start.line, this.range.start.character),
+                new vscode.Position(this.range.end.line, this.range.end.character)), 
+            this.comment, 
+            this.id);
     }
 }
 
 export class ReviewPointManager {
 
-    private rp_list: ReviewPoint[] = [];
+    private rp_list :ReviewPoint[] = [];
 
-    private replyEnable = false;
+    private history :string[] = [];
+
+    private saved = false;
+
+    public save() {
+        this.saved = true;
+        // save this version's workspace folder path
+        this.history.push(vscode.workspace.workspaceFolders![0].uri.fsPath);
+        this.rp_list.forEach(element => {
+            element.save();
+        });
+    }
 
     public findById(id: string) {
         let rp = this.rp_list.find(x => { return x.id === id; });
@@ -59,6 +104,12 @@ export class ReviewPointManager {
     public getAsHtml() {
         let html: string = "";
 
+        html += "<br/>past workspaces: <br/>";
+        this.history.forEach(h => {
+            html += "<div style='margin-left: 30px;'>" + h + "</div>";
+        });
+        html += "<br/>";
+        
         this.rp_list.forEach(element => {
             html += "<tr><td>";
             html += "<div id=" + element.id + " class='rp'>";
@@ -67,11 +118,19 @@ export class ReviewPointManager {
             html += element.range.start.character.toString() + ") to (" + element.range.end.line.toString() + ", " + element.range.end.character.toString() + ")";
             html += "<br/>";
             html += "</div>";
+            
+            element.history.forEach(e => {
+                html += "history: <br/>";
+                html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
+            });
             html += "comment: <br/>";
             html += "<div class='comment' style='margin-left: 30px;' id='cmt." + element.id + "'>" + element.comment + "</div>";
-            html += "<button class='remove' id='rmv." + element.id + "'>remove</button>";
-            html += "<button class='reply' id='rly." + element.id + "'>reply</button>";
+            if(this.saved === false) {
+                html += "<button class='remove' id='rmv." + element.id + "'>remove</button>";
+            }
+
             html += "<button class='revice' id='rev." + element.id + "'>revice range</button>";
+
             html += "</td></tr>";
         });
 

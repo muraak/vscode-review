@@ -107,6 +107,13 @@ function showManageWindow(context: vscode.ExtensionContext) {
                         current_decorator.dispose();
                     }
                     return;
+                case 'save':
+                    reviewPointManager.save();
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
             }
         });
 

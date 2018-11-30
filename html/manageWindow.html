@@ -10,7 +10,7 @@
 
 <body>
     <button id="clearHrt">clear highright</button>
-    <button id="changeMode">change mode</button>
+    <button id="save">save</button>
     <table border="1" id="rptable">
     </table>
     <script>
@@ -65,6 +65,12 @@
         document.getElementById("clearHrt").onclick = function(){
             vscode.postMessage({
                 command: "clearHrt"
+            });
+        };
+
+        document.getElementById("save").onclick = function(){
+            vscode.postMessage({
+                command: "save"
             });
         };
     </script>
