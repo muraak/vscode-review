@@ -17,13 +17,13 @@ export class ReviewPoint {
     }
 
     public needToUpdate(range: vscode.Range, text: string) {
-        if (this.isBefore(range) == true) {
-            if (this.isAddedNewLine(text) == true) {
+        if (this.isBefore(range) === true) {
+            if (this.isAddedNewLine(text) === true) {
                 return true;
             }
         }
 
-        if (this.isOverlapped(range) == true) {
+        if (this.isOverlapped(range) === true) {
             return true;
         }
 
@@ -88,12 +88,14 @@ export class ReviewPointManager {
             html += "<div id=" + element.id + " class='rp'>";
             html += "file: " + element.file + "<br/>";
             html += "position: (" + element.range.start.line.toString() + ", ";
-            html += element.range.start.character.toString() + ")<br/>";
+            html += element.range.start.character.toString() + ") to (" + element.range.end.line.toString() + ", " + element.range.end.character.toString() + ")";
+            html += "<br/>";
             html += "</div>";
             html += "comment: <br/>";
             html += "<div class='comment' style='margin-left: 30px;' id='cmt." + element.id + "'>" + element.comment + "</div>";
             html += "<button class='remove' id='rmv." + element.id + "'>remove</button>";
             html += "<button class='reply' id='rly." + element.id + "'>reply</button>";
+            html += "<button class='revice' id='rev." + element.id + "'>revice range</button>";
             html += "</td></tr>";
         });
 
@@ -102,7 +104,7 @@ export class ReviewPointManager {
 
     public belongsTo(file: string) {
 
-        let idx = this.rp_list.findIndex(x => { return (x.file === file); })
+        let idx = this.rp_list.findIndex(x => { return (x.file === file); });
 
         return idx >= 0;
     }
@@ -138,6 +140,14 @@ export class ReviewPointManager {
         return 0;
     }
 
+    private calcNumOfChars(range: vscode.Range, text :string) {
+        if(text === "") {
+            return -(range.end.character - range.start.character);
+        }
+
+        return text.length;
+    }
+
     private getNewRange(rp :ReviewPoint, range_chenged :vscode.Range, text_changed :string)
     {
         let range_new :vscode.Range | undefined = undefined;
@@ -161,6 +171,12 @@ export class ReviewPointManager {
                     range_new = new vscode.Range(
                         new vscode.Position(rp.range.start.line + diff_of_lines, range_chenged.end.character),
                         new vscode.Position(rp.range.end.line + diff_of_lines, rp.range.end.character + range_chenged.end.character)
+                    );
+                }
+                else if(diff_of_lines === 0) {
+                    range_new = new vscode.Range(
+                        new vscode.Position(rp.range.start.line, rp.range.start.character + this.calcNumOfChars(range_chenged, text_changed)),
+                        new vscode.Position(rp.range.end.line, rp.range.end.character + ((rp.range.end.line === rp.range.start.line)?this.calcNumOfChars(range_chenged, text_changed):0))
                     );
                 }
                 else {
@@ -206,5 +222,17 @@ export class ReviewPointManager {
         }
 
         return range_new;
+    }
+
+    public reviceRange(id :string, editor :vscode.TextEditor) {
+        
+        let tgt = this.findById(id.replace("rev.", ""));
+        
+        if(vscode.workspace.asRelativePath(editor.document.uri.fsPath) !== tgt!.file){
+            return;
+        }
+
+        tgt!.range = editor.selection;
+
     }
 }

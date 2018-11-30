@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
         // This event fires so frquently.
         // So return A.S.A.P if not nessesary!
         if(reviewPointManager) {
-            if(reviewPointManager.belongsTo(vscode.workspace.asRelativePath(e.document.uri.fsPath)) == true){
+            if(reviewPointManager.belongsTo(vscode.workspace.asRelativePath(e.document.uri.fsPath)) === true){
                 if(e.contentChanges.length > 0) {
                     let updated = reviewPointManager.updateRanges(
                         vscode.workspace.asRelativePath(e.document.uri.fsPath), 
@@ -95,6 +95,13 @@ function showManageWindow(context: vscode.ExtensionContext) {
                         wv_panel.webview.html = getManageWindowHtml(context);
                     }
                     return;
+                case 'revice':
+                    reviewPointManager.reviceRange(message.id, previous_textEditor);
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
                 case 'clearHrt':
                     if(current_decorator) {
                         current_decorator.dispose();
@@ -103,12 +110,18 @@ function showManageWindow(context: vscode.ExtensionContext) {
             }
         });
 
+        vscode.window.onDidChangeTextEditorSelection(e => {
+            previous_textEditor = e!.textEditor;
+        });
+
         // Release the wv_panel when that is disposed
         wv_panel.onDidDispose(() => {
             wv_panel = undefined;
         });
     }
 }
+
+let previous_textEditor :vscode.TextEditor;
 
 function addReviewPoint() {
     const editor = vscode.window.activeTextEditor;

@@ -51,6 +51,16 @@
             };
         });
 
+        var revs = document.getElementsByClassName('revice');
+        Array.prototype.forEach.call(revs, function(element) {
+            element.onclick = function() {
+                vscode.postMessage({
+                    command: "revice",
+                    id: element.id,
+                });
+            };
+        });
+
         document.getElementById("clearHrt").onclick = function(){
             vscode.postMessage({
                 command: "clearHrt"
