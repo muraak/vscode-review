@@ -88,6 +88,13 @@ function showManageWindow(context: vscode.ExtensionContext) {
                 case 'comment':
                     reviewPointManager.updateComment(message.id, message.comment);
                     return;
+                case 'close':
+                    reviewPointManager.close(message.id);
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
                 case 'remove':
                     reviewPointManager.remove(message.id);
                     // update html
@@ -108,7 +115,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     }
                     return;
                 case 'save':
-                    reviewPointManager.save();
+                    reviewPointManager.save(vscode.workspace.workspaceFolders![0].uri.fsPath);
                     // update html
                     if (wv_panel) {
                         wv_panel.webview.html = getManageWindowHtml(context);

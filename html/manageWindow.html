@@ -52,6 +52,16 @@
             };
         });
 
+        var clss = document.getElementsByClassName('close');
+        Array.prototype.forEach.call(clss, function(element) {
+            element.onclick = function() {
+                vscode.postMessage({
+                    command: "close",
+                    id: element.id,
+                });
+            };
+        });
+
         var revs = document.getElementsByClassName('revice');
         Array.prototype.forEach.call(revs, function(element) {
             element.onclick = function() {
