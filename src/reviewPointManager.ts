@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+
 export class ReviewPoint {
     public file: string;
     public range: vscode.Range;
@@ -12,6 +13,7 @@ export class ReviewPoint {
     public history: ReviewPoint[] = [];
     public version: number;
     public isClosed: boolean;
+    public author :string;
 
     constructor(
         version :number, 
@@ -19,7 +21,9 @@ export class ReviewPoint {
         range :vscode.Range, 
         comment? :string,
         id? :string,
-        isClosed? :boolean) {
+        isClosed? :boolean,
+        author? :string) {
+        
         this.version = version;
         this.file = file;
         this.range = range;
@@ -45,6 +49,14 @@ export class ReviewPoint {
         else {
             this.isClosed = isClosed;
         }
+
+        if(!author) {
+            const os = require("os");
+            this.author = os.userInfo().username;
+        }
+        else {
+            this.author = author;
+        }
     }
 
     public save(current_version: number) {
@@ -65,7 +77,9 @@ export class ReviewPoint {
                 new vscode.Position(this.range.start.line, this.range.start.character),
                 new vscode.Position(this.range.end.line, this.range.end.character)),
             this.comment,
-            this.id);
+            this.id,
+            undefined,
+            this.author);
     }
 
     public static createFromJsonObj(obj: any) {
@@ -76,7 +90,9 @@ export class ReviewPoint {
                 new vscode.Position(obj.range[0].line, obj.range[0].character),
                 new vscode.Position(obj.range[1].line, obj.range[1].character)),
             obj.comment,
-            obj.id);
+            obj.id,
+            undefined,
+            (obj.hasOwnProperty("author"))?obj.author:undefined);
 
         obj.history.forEach((h: any) => {
             rp.history.push(
@@ -102,11 +118,11 @@ export class ReviewPoint {
         html += "</div>";
 
         this.history.forEach(e => {
-            html += "history(ver." + e.version + "): <br/>";
+            html += "history(ver." + e.version + ") by " + e.author + ": <br/>";
             html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
         });
         if(this.isClosed !== true) {
-            html += "comment(ver." + this.version + "): <br/>";
+            html += "comment(ver." + this.version + ") by " +  this.author + ": <br/>";
             html += "<div class='comment' style='margin-left: 30px;' id='cmt." + this.id + "'>" + this.comment + "</div>";
         }else {
             html += "<br/>this review point was closed at ver." + this.version + "<br/>";
