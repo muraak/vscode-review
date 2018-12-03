@@ -156,6 +156,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
 
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
+    $("#summary").html(reviewPointManager.getSummaryAsHtml());
     $("#rptable").html(reviewPointManager.getAsHtml());
 
     return $.html();

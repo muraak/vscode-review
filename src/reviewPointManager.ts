@@ -88,6 +88,37 @@ export class ReviewPoint {
 
         return rp;
     }
+
+    public getAsHtml()
+    {
+        let html: string = "";
+
+        html += "<tr><td>";
+        html += "<div id=" + this.id + " class='rp'>";
+        html += "file: " + this.file + "<br/>";
+        html += "range: (" + this.range.start.line.toString() + ", ";
+        html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
+        html += "<br/>";
+        html += "</div>";
+
+        this.history.forEach(e => {
+            html += "history(ver." + e.version + "): <br/>";
+            html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
+        });
+        if(this.isClosed !== true) {
+            html += "comment(ver." + this.version + "): <br/>";
+            html += "<div class='comment' style='margin-left: 30px;' id='cmt." + this.id + "'>" + this.comment + "</div>";
+        }else {
+            html += "<br/>this review point was closed at ver." + this.version + "<br/>";
+        }
+        html += "<button class='close' id='cls." + this.id + "'>close</button>";
+        html += "<button class='remove' id='rmv." + this.id + "'>remove</button>";
+        html += "<button class='revice' id='rev." + this.id + "'>revice range</button>";
+
+        html += "</td></tr>";
+
+        return html;
+    }
 }
 
 export class ReviewPointManager {
@@ -172,39 +203,22 @@ export class ReviewPointManager {
         }
     }
 
-    public getAsHtml() {
+    public getSummaryAsHtml()
+    {
         let html: string = "";
-
         html += "<br/>current version: " + this.version + "<br/>";
         this.history.forEach(h => {
             html += "<div style='margin-left: 30px;'>" + h + "</div>";
         });
         html += "<br/>";
+        return html;
+    }
+
+    public getAsHtml() {
+        let html: string = "";
 
         this.rp_list.forEach(element => {
-            html += "<tr><td>";
-            html += "<div id=" + element.id + " class='rp'>";
-            html += "file: " + element.file + "<br/>";
-            html += "range: (" + element.range.start.line.toString() + ", ";
-            html += element.range.start.character.toString() + ") to (" + element.range.end.line.toString() + ", " + element.range.end.character.toString() + ")";
-            html += "<br/>";
-            html += "</div>";
-
-            element.history.forEach(e => {
-                html += "history(ver." + e.version + "): <br/>";
-                html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
-            });
-            if(element.isClosed !== true) {
-                html += "comment(ver." + element.version + "): <br/>";
-                html += "<div class='comment' style='margin-left: 30px;' id='cmt." + element.id + "'>" + element.comment + "</div>";
-            }else {
-                html += "<br/>this review point was closed at ver." + element.version + "<br/>";
-            }
-            html += "<button class='close' id='cls." + element.id + "'>close</button>";
-            html += "<button class='remove' id='rmv." + element.id + "'>remove</button>";
-            html += "<button class='revice' id='rev." + element.id + "'>revice range</button>";
-
-            html += "</td></tr>";
+            html += element.getAsHtml();
         });
 
         return html;
