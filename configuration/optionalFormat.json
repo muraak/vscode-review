@@ -1,0 +1,26 @@
+[
+    {
+        "type": 0,
+        "name": "要因相違有無",
+        "defaultValue": false
+    },
+    {
+        "type": 1,
+        "name": "指摘属性",
+        "listValues": [
+            {
+                "name": "-",
+                "value": 0
+            },
+            {
+                "name": "機能仕様",
+                "value": 1
+            },
+            {
+                "name": "外部機器I/F",
+                "value": 2
+            }
+        ],
+        "defaultValue": 0
+    }
+]

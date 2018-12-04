@@ -143,7 +143,8 @@ function addReviewPoint() {
     if (editor) {
         reviewPointManager.add(
             vscode.workspace.asRelativePath(editor.document.uri.fsPath),
-            new vscode.Range(editor.selection.start, editor.selection.end));
+            new vscode.Range(editor.selection.start, editor.selection.end),
+            _context);
         
         showManageWindow(_context);
     }
@@ -157,7 +158,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
     $("#summary").html(reviewPointManager.getSummaryAsHtml());
-    $("#rptable").html(reviewPointManager.getAsHtml());
+    $("#rptable").html(reviewPointManager.getAsHtml(context));
 
     return $.html();
 }

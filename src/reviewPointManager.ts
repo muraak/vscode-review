@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+type KeyValuePair = {key :string, value :any}
 
 export class ReviewPoint {
     public file: string;
@@ -14,6 +15,7 @@ export class ReviewPoint {
     public version: number;
     public isClosed: boolean;
     public author :string;
+    public options :KeyValuePair[] = [];
 
     constructor(
         version :number, 
@@ -105,7 +107,7 @@ export class ReviewPoint {
         return rp;
     }
 
-    public getAsHtml()
+    public getAsHtml(context :vscode.ExtensionContext)
     {
         let html: string = "";
 
@@ -116,6 +118,7 @@ export class ReviewPoint {
         html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
+        html += this.getOptionsAsHtml(context);
 
         this.history.forEach(e => {
             html += "history(ver." + e.version + ") by " + e.author + ": <br/>";
@@ -134,6 +137,71 @@ export class ReviewPoint {
         html += "</td></tr>";
 
         return html;
+    }
+
+    public initializeOption(context :vscode.ExtensionContext)
+    {
+        try{
+
+            let format = this.loadOptionsAsArrayObject(context);
+            format.forEach((element :any) => {
+                this.options.push({
+                    key: element!.name,
+                    value: element!.defaultValue});
+            });
+        }
+        catch(e){
+            vscode.window.showErrorMessage("parsing of optionalFormat.json was failed.\n" + e.message);
+        }
+    }
+
+    public getOptionsAsHtml(context :vscode.ExtensionContext) {
+        
+        let html: string = "<div>";
+
+        let format = this.loadOptionsAsArrayObject(context);
+
+        format.forEach((element :any) => {
+            
+            // get current option's value
+            let value = this.options.find(x => {return x.key === element.name;})!.value;
+
+            if(element.type === 0) {
+                // this option is gonna be checkbox
+
+                if(value === true){
+                    html += "<input type='checkbox' checked='checked'>" + element.name + "</input>";
+                }
+                else {
+                    html += "<input type='checkbox'>" + element.name + "</input>";
+                }
+            }
+            else if(element.type === 1) {
+                // this option is gonna be drop-down list
+
+                html += "<select>";
+
+                element.listValues.forEach((elm :any)=> {
+                    if(elm.value === value){
+                        html += "<option value=" + elm.value + " selected>" + elm.name + "</option>";
+                    }
+                    else {
+                        html += "<option value=" + elm.value + ">" + elm.name + "</option>";
+                    }
+                });
+
+                html += "</select>";
+            }
+        });
+
+        html += "</div>"
+
+        return html;
+    }
+
+    private loadOptionsAsArrayObject(context :vscode.ExtensionContext)
+    {
+        return JSON.parse(fs.readFileSync(path.join(context.extensionPath, "configuration", "optionalFormat.json")).toString());
     }
 }
 
@@ -203,8 +271,10 @@ export class ReviewPointManager {
         }
     }
 
-    public add(file: string, range: vscode.Range) {
-        this.rp_list.push(new ReviewPoint(this.version, file, range));
+    public add(file: string, range: vscode.Range, context :vscode.ExtensionContext) {
+        let rp = new ReviewPoint(this.version, file, range);
+        rp.initializeOption(context);
+        this.rp_list.push(rp);
     }
 
     public close(cls_id :string) {
@@ -230,11 +300,11 @@ export class ReviewPointManager {
         return html;
     }
 
-    public getAsHtml() {
+    public getAsHtml(context :vscode.ExtensionContext) {
         let html: string = "";
 
         this.rp_list.forEach(element => {
-            html += element.getAsHtml();
+            html += element.getAsHtml(context);
         });
 
         return html;
