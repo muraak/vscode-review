@@ -75,6 +75,29 @@
             };
         });
 
+        var chks = document.getElementsByClassName('opt_chkbox');
+        Array.prototype.forEach.call(chks, function(element) {
+            element.onclick = function() {
+                vscode.postMessage({
+                    command: "opt_chkbox",
+                    id: element.id,
+                    value: element.checked
+                });
+            };
+        });
+
+        var lsts = document.getElementsByClassName('opt_list');
+        Array.prototype.forEach.call(lsts, function(element) {
+            element.onchange = function() {
+                var selectedItem = this.options[ this.selectedIndex ];
+                vscode.postMessage({
+                    command: "opt_list",
+                    id: element.id,
+                    value: selectedItem.value
+                });
+            };
+        });
+
         document.getElementById("clearHrt").onclick = function(){
             vscode.postMessage({
                 command: "clearHrt"

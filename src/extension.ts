@@ -121,6 +121,12 @@ function showManageWindow(context: vscode.ExtensionContext) {
                         wv_panel.webview.html = getManageWindowHtml(context);
                     }
                     return;
+                case 'opt_chkbox':
+                    reviewPointManager.updateOption(message.id, message.value);
+                    return;
+                case 'opt_list':
+                    reviewPointManager.updateOption(message.id, Number.parseInt(message.value));
+                    return;
             }
         });
 

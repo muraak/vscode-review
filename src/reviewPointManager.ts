@@ -104,6 +104,10 @@ export class ReviewPoint {
                         new vscode.Position(h.range[1].line, h.range[1].character)), h.comment, h.id));
         });
 
+        obj.options.forEach((opt:any) => {
+            rp.options.push({key: opt.key, value: opt.value});
+        });
+
         return rp;
     }
 
@@ -118,8 +122,12 @@ export class ReviewPoint {
         html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
+        
+        html += "optional information:<br/>";
+        html += "<div class='optional' style='margin-left: 30px;'>";
         html += this.getOptionsAsHtml(context);
-
+        html += "</div>";
+        
         this.history.forEach(e => {
             html += "history(ver." + e.version + ") by " + e.author + ": <br/>";
             html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
@@ -146,7 +154,7 @@ export class ReviewPoint {
             let format = this.loadOptionsAsArrayObject(context);
             format.forEach((element :any) => {
                 this.options.push({
-                    key: element!.name,
+                    key: element!.id,
                     value: element!.defaultValue});
             });
         }
@@ -164,22 +172,23 @@ export class ReviewPoint {
         format.forEach((element :any) => {
             
             // get current option's value
-            let value = this.options.find(x => {return x.key === element.name;})!.value;
+            let value = this.options.find(x => {return x.key === element.id;})!.value;
 
             if(element.type === 0) {
                 // this option is gonna be checkbox
 
                 if(value === true){
-                    html += "<input type='checkbox' checked='checked'>" + element.name + "</input>";
+                    html += "<input type='checkbox' id='" + this.id + "." + element.id + "' checked='checked' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
                 else {
-                    html += "<input type='checkbox'>" + element.name + "</input>";
+                    html += "<input type='checkbox' id='" + this.id + "." + element.id + "' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
             }
             else if(element.type === 1) {
                 // this option is gonna be drop-down list
 
-                html += "<select>";
+                html += element.name + ": ";
+                html += "<select class='opt_list' id='" + this.id + "." + element.id + "'>";
 
                 element.listValues.forEach((elm :any)=> {
                     if(elm.value === value){
@@ -190,11 +199,11 @@ export class ReviewPoint {
                     }
                 });
 
-                html += "</select>";
+                html += "</select><br/>";
             }
         });
 
-        html += "</div>"
+        html += "</div>";
 
         return html;
     }
@@ -202,6 +211,15 @@ export class ReviewPoint {
     private loadOptionsAsArrayObject(context :vscode.ExtensionContext)
     {
         return JSON.parse(fs.readFileSync(path.join(context.extensionPath, "configuration", "optionalFormat.json")).toString());
+    }
+
+    public updateOption(key :string, value :any) {
+        let tgt = this.options[this.options.findIndex(x => {return x.key === key;})];
+
+        if(tgt) {
+            tgt.key = key;
+            tgt.value = value;
+        }
     }
 }
 
@@ -473,5 +491,22 @@ export class ReviewPointManager {
         } catch (e) {
             return false;
         }
+    }
+
+    public updateOption(id :string, value :any)
+    {
+        let sections = id.split(".");
+        let rp_id = sections[0];
+        let opt_key = sections[1];
+
+        try {
+            this.findById(rp_id)!.updateOption(opt_key, value);
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
     }
 }
