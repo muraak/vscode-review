@@ -115,7 +115,7 @@ export class ReviewPoint {
     {
         let html: string = "";
 
-        html += "<tr><td>";
+        html += "<tr><td><div class='rp_frame'>";
         html += "<div id=" + this.id + " class='rp'>";
         html += "<span class='item2'>file: </span>" + this.file + "<br/>";
         html += "<span class='item2'>range: </span>(" + this.range.start.line.toString() + ", ";
@@ -130,11 +130,11 @@ export class ReviewPoint {
         
         this.history.forEach(e => {
             html += "<span class='item2'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
-            html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
+            html += "<div class='history' style='margin-left: 30px; width: 70vw;'>" + e.comment + "</div>";
         });
         if(this.isClosed !== true) {
             html += "<span class='item2'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
-            html += "<div class='comment' style='margin-left: 30px;' id='cmt." + this.id + "'>" + this.comment + "</div>";
+            html += "<div class='comment' style='margin-left: 30px; width: 70vw;' id='cmt." + this.id + "'>" + this.comment + "</div>";
         }else {
             html += "<br/><span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
         }
@@ -142,7 +142,7 @@ export class ReviewPoint {
         html += "<button class='remove' id='rmv." + this.id + "'>remove</button>";
         html += "<button class='revice' id='rev." + this.id + "'>revice range</button>";
 
-        html += "</td></tr>";
+        html += "</div></td></tr>";
 
         return html;
     }
@@ -187,8 +187,9 @@ export class ReviewPoint {
             else if(element.type === 1) {
                 // this option is gonna be drop-down list
 
-                html += element.name + ": ";
-                html += "<select class='opt_list' id='" + this.id + "." + element.id + "'>";
+                html += "<span>" + element.name + ": </span>";
+                html += "<div style='width: 150px; display: inline-block;'>";
+                html += "<select class='opt_list cp_ipselect cp_sl01' id='" + this.id + "." + element.id + "'>";
 
                 element.listValues.forEach((elm :any)=> {
                     if(elm.value === value){
@@ -199,7 +200,7 @@ export class ReviewPoint {
                     }
                 });
 
-                html += "</select><br/>";
+                html += "</select></div><br/>";
             }
         });
 
