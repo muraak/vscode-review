@@ -7,14 +7,45 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Review Manage Window</title>
 </head>
+<style type="text/css">
+body{
+    margin-top: 30px;
+}
 
+#rptable
+{
+    margin-left: 30px;
+    width: 90%;
+}
+button {
+    background-color: orangered;
+    border: none;
+    color: white;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 2px;
+}
+button:hover {
+    background-color: orange;
+    color: white;
+}
+
+.item1, .item2 {
+    color: dodgerblue;
+    font-weight: bold;
+}
+</style>
 <body>
     <button id="clearHrt">clear highright</button>
     <button id="save">save</button>
-    <p>summary: </p>
+    <button id="commit">commit</button>
+    <button id="revert">revert</button>
+    <p class="item1">summary: </p>
     <div id="summary" style="margin-left: 30px;"></div>
-    <p>review points: </p>
-    <table border="1" id="rptable" style="margin-left: 30px;">
+    <p class="item1">review points: </p>
+    <table border="1" id="rptable">
     </table>
     <script>
         const vscode = acquireVsCodeApi();

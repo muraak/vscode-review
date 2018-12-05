@@ -117,26 +117,26 @@ export class ReviewPoint {
 
         html += "<tr><td>";
         html += "<div id=" + this.id + " class='rp'>";
-        html += "file: " + this.file + "<br/>";
-        html += "range: (" + this.range.start.line.toString() + ", ";
+        html += "<span class='item2'>file: </span>" + this.file + "<br/>";
+        html += "<span class='item2'>range: </span>(" + this.range.start.line.toString() + ", ";
         html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
         
-        html += "optional information:<br/>";
+        html += "<span class='item2'>optional information:</span><br/>";
         html += "<div class='optional' style='margin-left: 30px;'>";
         html += this.getOptionsAsHtml(context);
         html += "</div>";
         
         this.history.forEach(e => {
-            html += "history(ver." + e.version + ") by " + e.author + ": <br/>";
+            html += "<span class='item2'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
             html += "<div class='history' style='margin-left: 30px;'>" + e.comment + "</div>";
         });
         if(this.isClosed !== true) {
-            html += "comment(ver." + this.version + ") by " +  this.author + ": <br/>";
+            html += "<span class='item2'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
             html += "<div class='comment' style='margin-left: 30px;' id='cmt." + this.id + "'>" + this.comment + "</div>";
         }else {
-            html += "<br/>this review point was closed at ver." + this.version + "<br/>";
+            html += "<br/><span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
         }
         html += "<button class='close' id='cls." + this.id + "'>close</button>";
         html += "<button class='remove' id='rmv." + this.id + "'>remove</button>";
@@ -310,11 +310,11 @@ export class ReviewPointManager {
     public getSummaryAsHtml()
     {
         let html: string = "";
-        html += "<br/>current version: " + this.version + "<br/>";
-        this.history.forEach(h => {
-            html += "<div style='margin-left: 30px;'>" + h + "</div>";
-        });
-        html += "<br/>";
+        html += "<span class='item2'>current version: </span>" + this.version + "<br/>";
+        // this.history.forEach(h => {
+        //     html += "<div style='margin-left: 30px;'>" + h + "</div>";
+        // });
+        // html += "<br/>";
         return html;
     }
 
