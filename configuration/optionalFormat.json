@@ -6,25 +6,89 @@
         "defaultValue": false
     },
     {
-        "id": "factor_reviewer",
-        "type": 1,
-        "name": "指摘要因(レビューア)",
-        "listValues": [
-            {"name": "-",           "value": 0},
-            {"name": "設計漏れ",    "value": 1},
-            {"name": "設計ミス",    "value": 2}
-        ],
-        "defaultValue": 0
-    },
-    {
         "id": "attribute_reviewer",
         "type": 1,
         "name": "指摘属性(レビューア)",
         "listValues": [
-            { "name": "-",              "value": 0},
-            { "name": "機能仕様",       "value": 1},
-            { "name": "外部機器I/F",    "value": 2}
+            { "name": "-",                      "value": 0},
+            { "name": "機能仕様",               "value": 1},
+            { "name": "外部機器I/F",            "value": 2},
+            { "name": "機能仕様",               "value": 3},
+            { "name": "外部機器I/F",            "value": 4},
+            { "name": "モジュール間I/F",        "value": 5},
+            { "name": "H/W I/F",                "value": 6},
+            { "name": "データ構造",             "value": 7},
+            { "name": "性能仕様",               "value": 8},
+            { "name": "S/W構造",                "value": 9},
+            { "name": "異常処理",               "value": 10},
+            { "name": "エラー処理",             "value": 11},
+            { "name": "排他制御",               "value": 12},
+            { "name": "限界・境界処理",         "value": 13},
+            { "name": "条件・パターン網羅",     "value": 14},
+            { "name": "その他のアルゴリズム",   "value": 15},
+            { "name": "名称",                   "value": 16},
+            { "name": "指摘属性無し",           "value": 17},
+            { "name": "その他",                 "value": 18}
         ],
         "defaultValue": 0
+    },
+    {
+        "id": "factor_reviewer",
+        "type": 1,
+        "name": "指摘要因(レビューア)",
+        "listValues": [
+            {"name": "-",                   "value": 0},
+            {"name": "設計漏れ",            "value": 1},
+            {"name": "設計ミス",            "value": 2},
+            {"name": "設計最適化不備",	    "value": 3},
+            {"name": "説明不備",	        "value": 4},
+            {"name": "誤記",	            "value": 5},
+            {"name": "文法・体裁不備",	    "value": 6},
+            {"name": "設計方針/計画不備",	"value": 7},
+            {"name": "規約違反",	        "value": 8},
+            {"name": "不具合水平展開不備",	"value": 9},
+            {"name": "要求仕様変更",	    "value": 10},
+            {"name": "生成不備",	        "value": 11},
+            {"name": "H/W不具合",	        "value": 12},
+            {"name": "他S/W・他機種不具合",	"value": 13},
+            {"name": "確認事項",        	"value": 14},
+            {"name": "改善要望",        	"value": 15},
+            {"name": "その他の不具合指摘",	"value": 16},
+            {"name": "その他の軽微な指摘",	"value": 17},
+            {"name": "指摘ミス",	        "value": 18}
+        ],
+        "defaultValue": 0
+    },
+    {
+        "id": "factor_coder",
+        "type": 1,
+        "name": "指摘要因(担当者)",
+        "listValues": [
+            {"name": "-",                   "value": 0},
+            {"name": "設計漏れ",            "value": 1},
+            {"name": "設計ミス",            "value": 2},
+            {"name": "設計最適化不備",	    "value": 3},
+            {"name": "説明不備",	        "value": 4},
+            {"name": "誤記",	            "value": 5},
+            {"name": "文法・体裁不備",	    "value": 6},
+            {"name": "設計方針/計画不備",	"value": 7},
+            {"name": "規約違反",	        "value": 8},
+            {"name": "不具合水平展開不備",	"value": 9},
+            {"name": "要求仕様変更",	    "value": 10},
+            {"name": "生成不備",	        "value": 11},
+            {"name": "H/W不具合",	        "value": 12},
+            {"name": "他S/W・他機種不具合",	"value": 13},
+            {"name": "確認事項：問題なし",	"value": 14},
+            {"name": "改善要望：改善済み",	"value": 15},
+            {"name": "改善要望：現状通り",	"value": 16},
+            {"name": "その他の不具合指摘",	"value": 17},
+            {"name": "その他の軽微な指摘",	"value": 18},
+            {"name": "指摘ミス",	        "value": 19}
+        ],
+        "defaultValue": 0,
+        "enableWhen": {
+            "target": "factor_reviewer",
+            "caseValues": [14, 15] 
+        }
     }
 ]

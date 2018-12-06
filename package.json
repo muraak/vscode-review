@@ -49,6 +49,8 @@
     },
     "dependencies": {
         "cheerio": "^1.0.0-rc.2",
+        "electron": "^3.0.10",
+        "g": "^2.0.1",
         "request": "^2.88.0",
         "shortid": "^2.2.14"
     }

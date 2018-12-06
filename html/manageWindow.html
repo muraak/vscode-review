@@ -177,14 +177,14 @@ table tr td{
 
         var lsts = document.getElementsByClassName('opt_list');
         Array.prototype.forEach.call(lsts, function(element) {
-            element.onchange = function() {
+            element.addEventListener("change", function() {
                 var selectedItem = this.options[ this.selectedIndex ];
                 vscode.postMessage({
                     command: "opt_list",
                     id: element.id,
                     value: selectedItem.value
                 });
-            };
+            });
         });
 
         document.getElementById("clearHrt").onclick = function(){
@@ -193,9 +193,21 @@ table tr td{
             });
         };
 
+        document.getElementById("commit").onclick = function(){
+            vscode.postMessage({
+                command: "commit"
+            });
+        };
+
         document.getElementById("save").onclick = function(){
             vscode.postMessage({
                 command: "save"
+            });
+        };
+
+        document.getElementById("revert").onclick = function(){
+            vscode.postMessage({
+                command: "revert"
             });
         };
     </script>

@@ -32,20 +32,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     reviewPointManager = new ReviewPointManager();
 
-    vscode.workspace.onDidChangeTextDocument((e) =>{
+    vscode.workspace.onDidChangeTextDocument((e) => {
         // CAUTION:
         // This event fires so frquently.
         // So return A.S.A.P if not nessesary!
-        if(reviewPointManager) {
-            if(reviewPointManager.belongsTo(vscode.workspace.asRelativePath(e.document.uri.fsPath)) === true){
-                if(e.contentChanges.length > 0) {
+        if (reviewPointManager) {
+            if (reviewPointManager.belongsTo(vscode.workspace.asRelativePath(e.document.uri.fsPath)) === true) {
+                if (e.contentChanges.length > 0) {
                     let updated = reviewPointManager.updateRanges(
-                        vscode.workspace.asRelativePath(e.document.uri.fsPath), 
-                        e.contentChanges[0].range, 
+                        vscode.workspace.asRelativePath(e.document.uri.fsPath),
+                        e.contentChanges[0].range,
                         e.contentChanges[0].text,
                         e.document);
 
-                    if(updated === true) {
+                    if (updated === true) {
                         wv_panel!.webview.html = getManageWindowHtml(context);
                     }
                 }
@@ -110,12 +110,26 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     }
                     return;
                 case 'clearHrt':
-                    if(current_decorator) {
+                    if (current_decorator) {
                         current_decorator.dispose();
                     }
                     return;
                 case 'save':
                     reviewPointManager.save(vscode.workspace.workspaceFolders![0].uri.fsPath);
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
+                case 'commit':
+                    reviewPointManager.commit(vscode.workspace.workspaceFolders![0].uri.fsPath);
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
+                case 'revert':
+                    reviewPointManager.revert(vscode.workspace.workspaceFolders![0].uri.fsPath);
                     // update html
                     if (wv_panel) {
                         wv_panel.webview.html = getManageWindowHtml(context);
@@ -141,7 +155,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
     }
 }
 
-let previous_textEditor :vscode.TextEditor;
+let previous_textEditor: vscode.TextEditor;
 
 function addReviewPoint() {
     const editor = vscode.window.activeTextEditor;
@@ -151,7 +165,7 @@ function addReviewPoint() {
             vscode.workspace.asRelativePath(editor.document.uri.fsPath),
             new vscode.Range(editor.selection.start, editor.selection.end),
             _context);
-        
+
         showManageWindow(_context);
     }
 }
@@ -169,7 +183,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     return $.html();
 }
 
-let current_decorator : vscode.TextEditorDecorationType | undefined = undefined;
+let current_decorator: vscode.TextEditorDecorationType | undefined = undefined;
 
 function openFileWithRange(file: string, range: vscode.Range) {
     if (vscode.workspace.workspaceFolders) {
@@ -179,7 +193,7 @@ function openFileWithRange(file: string, range: vscode.Range) {
             vscode.workspace.openTextDocument(path.join(workspace_path, file)).then(document => {
                 vscode.window.showTextDocument(document, vscode.ViewColumn.One).then((editor) => {
 
-                    if(current_decorator) {
+                    if (current_decorator) {
                         // remove previous highlight 
                         current_decorator.dispose();
                     }

@@ -61,9 +61,22 @@ export class ReviewPoint {
         }
     }
 
-    public save(current_version: number) {
+    public commit(current_version: number) {
         this.history.push(this.deepcopy());
         this.reflesh(current_version);
+    }
+
+
+    public revert() {
+        let prev_rp = this.history.pop();
+        this.version = prev_rp!.version;
+        this.file = prev_rp!.file;
+        this.range = new vscode.Range(
+            new vscode.Position(prev_rp!.range.start.line, prev_rp!.range.start.character),
+            new vscode.Position(prev_rp!.range.end.line, prev_rp!.range.end.character));
+        this.comment = prev_rp!.comment;
+        this.isClosed = prev_rp!.isClosed;
+        this.author = prev_rp!.author;
     }
 
     public reflesh(current_version: number) {
@@ -172,10 +185,18 @@ export class ReviewPoint {
         format.forEach((element :any) => {
             
             // get current option's value
-            let value = this.options.find(x => {return x.key === element.id;})!.value;
+            let value :any; 
+            
+            try {
+                value = this.options.find(x => {return x.key === element.id;})!.value;
+            }
+            catch
+            {
+                value = element.defaultValue;
+            }
 
             if(element.type === 0) {
-                // this option is gonna be checkbox
+                // this option is gonna be a checkbox
 
                 if(value === true){
                     html += "<input type='checkbox' id='" + this.id + "." + element.id + "' checked='checked' class='opt_chkbox'>" + element.name + "</input><br/>";
@@ -185,7 +206,7 @@ export class ReviewPoint {
                 }
             }
             else if(element.type === 1) {
-                // this option is gonna be drop-down list
+                // this option is gonna be a drop-down list
 
                 html += "<span>" + element.name + ": </span>";
                 html += "<div style='width: 150px; display: inline-block;'>";
@@ -201,6 +222,19 @@ export class ReviewPoint {
                 });
 
                 html += "</select></div><br/>";
+
+                if("enableWhen" in element) {
+                    html += "<script>";
+                    html += "document.getElementById('" + this.id + "." +  element.enableWhen.target + "').addEventListener('change', function() {";
+                    html += "document.getElementById('"  + this.id + "." + element.id + "').disabled = true;";
+                    element.enableWhen.caseValues.forEach((it : any) => {
+                        html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false;}";
+                    });
+                    html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;}";
+                    html += "document.getElementById('"  + this.id + "." + element.id + "').onchange();";
+                    html += "});";
+                    html += "</script>";
+                }
             }
         });
 
@@ -236,17 +270,42 @@ export class ReviewPointManager {
         this.importIfExist();
     }
 
-    public save(save_path: string) {
+    public commit(save_path: string) {
         // save this version's workspace folder path
         this.history.push(vscode.workspace.workspaceFolders![0].uri.fsPath);
         this.version++;
         this.rp_list.forEach(element => {
             if(element.isClosed === false) {
-                element.save(this.version);
+                element.commit(this.version);
             }
         });
 
         this.export(save_path);
+    }
+
+    public revert(save_path: string) {
+        if(this.version < 1) {
+            return;
+        }
+        this.history.pop();
+        this.rp_list.forEach(element => {
+            if(element.isClosed === true) {
+                if(element.version === this.version) {
+                    element.revert();
+                }
+            }
+            else {
+                element.revert();
+            }
+        });
+        this.version--;
+
+        this.export(save_path);
+    }
+
+    public save(save_path: string) {
+        this.export(save_path);
+        vscode.window.showInformationMessage('Review points has been saved successfully!');
     }
 
     private export(save_path: string) {
@@ -458,7 +517,9 @@ export class ReviewPointManager {
             return;
         }
 
-        tgt!.range = editor.selection;
+        tgt!.range = new vscode.Range(
+            new vscode.Position(editor.selection.start.line, editor.selection.start.character),
+            new vscode.Position(editor.selection.end.line, editor.selection.end.character));
 
     }
 
