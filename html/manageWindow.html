@@ -79,7 +79,7 @@ button:hover {
 	pointer-events: none;
 }
 .cp_ipselect.cp_sl01 select {
-	padding: 8px 38px 8px 8px;
+	padding: 8px 8px 8px 8px;
 	color: #666666;
 }
 
@@ -96,6 +96,9 @@ table tr td{
 
 </style>
 <body>
+        <script>
+            const vscode = acquireVsCodeApi();
+        </script>
     <button id="clearHrt">clear highright</button>
     <button id="save">save</button>
     <button id="commit">commit</button>
@@ -106,8 +109,6 @@ table tr td{
     <table border="0" id="rptable">
     </table>
     <script>
-        const vscode = acquireVsCodeApi();
-        
         var rps = document.getElementsByClassName('rp');
         Array.prototype.forEach.call(rps, function(element) {
             element.onclick = function () {

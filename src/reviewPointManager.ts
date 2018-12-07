@@ -208,8 +208,8 @@ export class ReviewPoint {
             else if(element.type === 1) {
                 // this option is gonna be a drop-down list
 
-                html += "<span>" + element.name + ": </span>";
-                html += "<div style='width: 150px; display: inline-block;'>";
+                html += "<span style='width: 200px; display: inline-block;'>" + element.name + ": </span>";
+                html += "<div style='width: 200px; display: inline-block;'>";
                 html += "<select class='opt_list cp_ipselect cp_sl01' id='" + this.id + "." + element.id + "'>";
 
                 element.listValues.forEach((elm :any)=> {
@@ -223,15 +223,34 @@ export class ReviewPoint {
 
                 html += "</select></div><br/>";
 
+                // parse enableWhen setting and add corresponding js code to html
                 if("enableWhen" in element) {
                     html += "<script>";
-                    html += "document.getElementById('" + this.id + "." +  element.enableWhen.target + "').addEventListener('change', function() {";
                     html += "document.getElementById('"  + this.id + "." + element.id + "').disabled = true;";
                     element.enableWhen.caseValues.forEach((it : any) => {
-                        html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false;}";
+                        html += "if(document.getElementById('" + this.id + "." +  element.enableWhen.target + "').options[document.getElementById('" + this.id + "." +  element.enableWhen.target + "').selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false; }";
                     });
-                    html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;}";
-                    html += "document.getElementById('"  + this.id + "." + element.id + "').onchange();";
+                    html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){";
+                    html += "document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;";
+                        html += "vscode.postMessage({";
+                        html += "command: 'opt_list',";
+                        html += "id: '" + this.id + "." + element.id +"',";
+                        html += "value: 0";
+                        html += "});";
+                    html += "}";                    
+                    html += "document.getElementById('" + this.id + "." +  element.enableWhen.target + "').addEventListener('change', function() {";
+                        html += "document.getElementById('"  + this.id + "." + element.id + "').disabled = true;";
+                        element.enableWhen.caseValues.forEach((it : any) => {
+                            html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false; }";
+                        });
+                        html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){";
+                            html += "document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;";
+                            html += "vscode.postMessage({";
+                                html += "command: 'opt_list',";
+                                html += "id: '" + this.id + "." + element.id +"',";
+                                html += "value: 0";
+                            html += "});";
+                        html += "}";
                     html += "});";
                     html += "</script>";
                 }
