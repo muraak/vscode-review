@@ -88,7 +88,52 @@
         "defaultValue": 0,
         "enableWhen": {
             "target": "factor_reviewer",
-            "caseValues": [14, 15] 
+            "caseValues": [14, 15]
         }
+    },
+    {
+        "id": "make_factor",
+        "type": 1,
+        "name": "作りこみ要因(担当者)",
+        "listValues": [
+            {"name": "-",                           "value": 0},
+            { "name" : "要求仕様理解不足",          "value": 1},
+            { "name" : "他S/W仕様理解不足",         "value": 2},
+            { "name" : "H/W仕様理解不足",           "value": 3},
+            { "name" : "I/F仕様理解不足",           "value": 4},
+            { "name" : "記載漏れ",                  "value": 5},
+            { "name" : "検討不足",                  "value": 6},
+            { "name" : "ケアレスミス",              "value": 7},
+            { "name" : "コミュニケーション不足",    "value": 8},
+            { "name" : "参照先仕様書不備",          "value": 9},
+            { "name" : "言語理解不足",              "value": 10},
+            { "name" : "開発環境理解不足",          "value": 11},
+            { "name" : "作り込み要因無し",          "value": 12},
+            { "name" : "その他",                    "value": 13}
+        ],
+        "defaultValue": 0,
+        "enableWhen": {
+            "target": "factor_reviewer",
+            "caseValues": [1, 2, 3, 17]
+        }
+    },
+    {
+        "id": "phase",
+        "type": 1,
+        "name": "作りこみフェーズ",
+        "listValues": [
+            {"name": "-",                               "value": 0},
+            { "name": "既存開発（流用元）",             "value": 1},
+            { "name": "製品企画",                       "value": 2},
+            { "name": "基本仕様",                       "value": 3},
+            { "name": "I/F仕様",                        "value": 4},
+            { "name": "外部仕様",                       "value": 5},
+            { "name": "S/W設計(アーキテクチャ設計)",    "value": 6},
+            { "name": "S/W設計(S/W仕様書)",             "value": 7},
+            { "name": "S/W設計(S/W設計書)",             "value": 8},
+            { "name": "内部設計",                       "value": 9},
+            { "name": "デバッグ",                       "value": 10}
+        ],
+        "defaultValue": 0
     }
 ]
