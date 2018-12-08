@@ -309,8 +309,32 @@ export class ReviewPointManager {
     }
 
     private export(save_path: string) {
-        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
-            vscode.window.showErrorMessage(err.message);
+        
+        let save_dir = path.join(save_path, '.vscode');
+
+        fs.exists(save_dir, (exists) => {
+            if(exists === true) {
+                fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
+                    
+                    if(err) {
+                        vscode.window.showErrorMessage(err.message);
+                    }
+                });
+            }
+            else {
+                fs.mkdir(save_dir, (err) => {
+                    if(err) {
+                        vscode.window.showErrorMessage(err.message);
+                    }
+                    else {
+                        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {                   
+                            if(err) {
+                                vscode.window.showErrorMessage(err.message);
+                            }
+                        });
+                    }
+                });
+            }
         });
     }
 
