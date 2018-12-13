@@ -211,6 +211,16 @@ table tr td{
                 command: "revert"
             });
         };
+
+        var part = document.getElementsByName('partRadioBtn');
+        Array.prototype.forEach.call(part, function(element) {
+            element.addEventListener("change", function() {
+                vscode.postMessage({
+                    command: "part",
+                    value: this.value
+                });
+            });
+        });
     </script>
 </body>
 

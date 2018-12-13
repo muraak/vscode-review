@@ -141,6 +141,13 @@ function showManageWindow(context: vscode.ExtensionContext) {
                 case 'opt_list':
                     reviewPointManager.updateOption(message.id, Number.parseInt(message.value));
                     return;
+                case 'part':
+                    reviewPointManager.switchCurrentPart();
+                    // update html
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context);
+                    }
+                    return;
             }
         });
 

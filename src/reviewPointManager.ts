@@ -142,11 +142,11 @@ export class ReviewPoint {
         html += "</div>";
         
         this.history.forEach(e => {
-            html += "<span class='item2'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
+            html += "<span class='item2 ver" + e.version + "'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
             html += "<div class='history' style='margin-left: 30px; width: 70vw;'>" + e.comment + "</div>";
         });
         if(this.isClosed !== true) {
-            html += "<span class='item2'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
+            html += "<span class='item2 ver" + this.version + "'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
             html += "<div class='comment' style='margin-left: 30px; width: 70vw;' id='cmt." + this.id + "'>" + this.comment + "</div>";
         }else {
             html += "<br/><span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
@@ -285,6 +285,11 @@ export class ReviewPointManager {
 
     private version: number = 0;
 
+    private static REVIEWER = 0;
+    private static REVIEWEE = 1;
+
+    private part: number[] = [ReviewPointManager.REVIEWER];
+
     constructor() {
         this.importIfExist();
     }
@@ -292,6 +297,7 @@ export class ReviewPointManager {
     public commit(save_path: string) {
         // save this version's workspace folder path
         this.history.push(vscode.workspace.workspaceFolders![0].uri.fsPath);
+        this.part.push(this.getOppositePart()); // you should do this before updating version!
         this.version++;
         this.rp_list.forEach(element => {
             if(element.isClosed === false) {
@@ -418,6 +424,17 @@ export class ReviewPointManager {
         //     html += "<div style='margin-left: 30px;'>" + h + "</div>";
         // });
         // html += "<br/>";
+        html += "<div><span class='item2'>current part: </span>";
+        if(this.part[this.version] === ReviewPointManager.REVIEWER) {
+            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>reviewer</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewee</label>";
+        }
+        else {
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewer</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>reviewee</label>";
+        }
+
+        html += "</div>";
         return html;
     }
 
@@ -427,6 +444,20 @@ export class ReviewPointManager {
         this.rp_list.forEach(element => {
             html += element.getAsHtml(context);
         });
+
+        // distinguish between reviewer and reviewee
+        html += "<style>";
+        for(var i = 0; i <= this.version; i++){
+            html += ".ver" + i + "{";
+            if(this.part[i] === ReviewPointManager.REVIEWER) {
+                html += "color: red;";
+            }
+            else {
+                html += "color: green;";
+            }
+            html += "}";
+        }
+        html += "</style>";
 
         return html;
     }
@@ -572,6 +603,7 @@ export class ReviewPointManager {
         json += JSON.stringify({
             history: this.history,
             version: this.version,
+            part: this.part,
             rp_list: this.rp_list
         });
 
@@ -585,6 +617,7 @@ export class ReviewPointManager {
 
             this.history = j.history;
             this.version = j.version;
+            this.part    = j.part;
 
             this.rp_list = [];
 
@@ -613,5 +646,18 @@ export class ReviewPointManager {
         }
 
         return true;
+    }
+
+    public switchCurrentPart() {
+        this.part[this.version] = this.getOppositePart();
+    }
+
+    getOppositePart() {
+        if(this.part[this.version] === ReviewPointManager.REVIEWEE) {
+            return ReviewPointManager.REVIEWER;
+        }
+        else {
+            return ReviewPointManager.REVIEWEE;
+        }
     }
 }
