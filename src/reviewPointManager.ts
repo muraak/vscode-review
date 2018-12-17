@@ -62,6 +62,8 @@ export class ReviewPoint {
     }
 
     public commit(current_version: number) {
+        const os = require("os");
+        this.author = os.userInfo().username; // update author to committer
         this.history.push(this.deepcopy());
         this.reflesh(current_version);
     }
