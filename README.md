@@ -1,6 +1,4 @@
-# vscode-review README
-
-This is the README for your extension "vscode-review". After writing up a brief description, we recommend including the following sections.
+# vscode-review
 
 # vscode-reviewを使用したコーディングの流れ
 - 担当者がコーディングしてレビュー対象のワークスペースをレビューアに提出する

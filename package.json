@@ -3,6 +3,8 @@
     "displayName": "vscode-review",
     "description": "helping code review on vscode",
     "version": "0.0.1",
+    "author": "muraak",
+    "publisher": "muraak",
     "engines": {
         "vscode": "^1.29.0"
     },
