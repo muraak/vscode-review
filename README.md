@@ -14,13 +14,13 @@
 
 ## リリースノート
 
-### 0.0.01
+### 0.0.1
 
 プロトタイプ初回リリース
 
 
 ---
 
-Happy wirking!<br>
+Happy working!<br>
 Muraak.
 

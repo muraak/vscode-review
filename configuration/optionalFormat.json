@@ -1,11 +1,5 @@
 [
     {
-        "id": "difference",
-        "type": 0,
-        "name": "要因相違有無",
-        "defaultValue": false
-    },
-    {
         "id": "attribute_reviewer",
         "type": 1,
         "name": "指摘属性(レビューア)",
