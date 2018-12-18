@@ -109,14 +109,14 @@ export class ReviewPoint {
             obj.comment,
             obj.id,
             undefined,
-            (obj.hasOwnProperty("author"))?obj.author:undefined);
+            obj.author);
 
         obj.history.forEach((h: any) => {
             rp.history.push(
                 new ReviewPoint(h.version, h.file,
                     new vscode.Range(
                         new vscode.Position(h.range[0].line, h.range[0].character),
-                        new vscode.Position(h.range[1].line, h.range[1].character)), h.comment, h.id));
+                        new vscode.Position(h.range[1].line, h.range[1].character)), h.comment, h.id, h.isClosed, h.author));
         });
 
         obj.options.forEach((opt:any) => {
