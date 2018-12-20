@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ReviewPointManager } from './reviewPointManager';
+import {convert} from './converter';
 
 
 let _context: vscode.ExtensionContext;
@@ -27,6 +28,15 @@ export function activate(context: vscode.ExtensionContext) {
         showManageWindow(context);
     }));
     context.subscriptions.push(vscode.commands.registerCommand('review.addReviewPoint', addReviewPoint));
+    context.subscriptions.push(vscode.commands.registerCommand('review.convert', () => {
+        vscode.window.showOpenDialog({
+            filters: {
+                'DR記録ファイル': ['xlsx', 'xlsm']
+            }
+        }).then((file) => {
+            convert(file![0].fsPath);
+        });
+    }));
 
     _context = context;
 

@@ -13,7 +13,8 @@
     ],
     "activationEvents": [
         "onCommand:review.showReviewPoints",
-        "onCommand:review.addReviewPoint"
+        "onCommand:review.addReviewPoint",
+        "onCommand:review.convert"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -21,6 +22,10 @@
             {
                 "command": "review.showReviewPoints",
                 "title": "Show Review Points"
+            },
+            {
+                "command": "review.convert",
+                "title": "Convert current Review Point"
             },
             {
                 "command": "review.addReviewPoint",
@@ -53,7 +58,9 @@
         "cheerio": "^1.0.0-rc.2",
         "electron": "^3.0.10",
         "g": "^2.0.1",
+        "html2plaintext": "^2.1.0",
         "request": "^2.88.0",
-        "shortid": "^2.2.14"
+        "shortid": "^2.2.14",
+        "xlsx-populate": "^1.17.0"
     }
 }

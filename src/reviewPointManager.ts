@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-type KeyValuePair = {key :string, value :any}
+type KeyValuePair = {key :string, value :any};
 
 export class ReviewPoint {
     public file: string;
@@ -108,7 +108,7 @@ export class ReviewPoint {
                 new vscode.Position(obj.range[1].line, obj.range[1].character)),
             obj.comment,
             obj.id,
-            undefined,
+            obj.isClosed,
             obj.author);
 
         obj.history.forEach((h: any) => {
@@ -162,12 +162,13 @@ export class ReviewPoint {
         return html;
     }
 
+
     public initializeOption(context :vscode.ExtensionContext)
     {
         try{
 
-            let format = this.loadOptionsAsArrayObject(context);
-            format.forEach((element :any) => {
+            let optionformat = this.loadOptionsAsArrayObject(context);
+            optionformat.forEach((element :any) => {
                 this.options.push({
                     key: element!.id,
                     value: element!.defaultValue});
@@ -287,8 +288,8 @@ export class ReviewPointManager {
 
     private version: number = 0;
 
-    private static REVIEWER = 0;
-    private static REVIEWEE = 1;
+    public static REVIEWER = 0;
+    public static REVIEWEE = 1;
 
     private part: number[] = [ReviewPointManager.REVIEWER];
 
