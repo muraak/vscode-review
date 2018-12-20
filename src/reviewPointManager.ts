@@ -424,7 +424,7 @@ export class ReviewPointManager {
         if (rp) {
             if (comment !== rp.comment) {
                 rp.comment = comment;
-                rp.updateDoneTime();
+                if(this.part[this.version] === ReviewPointManager.REVIEWEE){ rp.updateDoneTime(); }
             }
         }
     }
