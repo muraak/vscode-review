@@ -17,6 +17,25 @@ export class ReviewPoint {
     public author :string;
     public options :KeyValuePair[] = [];
 
+    public add_time :Date | undefined= undefined; // should be set once when added this rp
+    public done_time :Date | undefined = undefined; // should be updated when committed as reviewee
+
+    setAddTime() {
+        if(this.add_time === undefined) { this.add_time =  new Date(Date.now());}
+    }
+
+    updateDoneTime() {
+        this.done_time =  new Date(Date.now());
+    }
+
+    getAddTime() {
+        return this.add_time;
+    }
+
+    getDoneTime() {
+        return this.done_time;
+    }
+
     constructor(
         version :number, 
         file :string, 
@@ -122,6 +141,14 @@ export class ReviewPoint {
         obj.options.forEach((opt:any) => {
             rp.options.push({key: opt.key, value: opt.value});
         });
+
+         if(obj.add_time) {
+             rp.add_time = obj.add_time;
+         }
+
+         if(obj.done_time) {
+             rp.done_time = obj.done_time;
+         }
 
         return rp;
     }
@@ -397,6 +424,7 @@ export class ReviewPointManager {
         if (rp) {
             if (comment !== rp.comment) {
                 rp.comment = comment;
+                rp.updateDoneTime();
             }
         }
     }
@@ -404,6 +432,7 @@ export class ReviewPointManager {
     public add(file: string, range: vscode.Range, context :vscode.ExtensionContext) {
         let rp = new ReviewPoint(this.version, file, range);
         rp.initializeOption(context);
+        rp.setAddTime();
         this.rp_list.push(rp);
     }
 

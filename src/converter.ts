@@ -29,9 +29,11 @@ export function convert(excel_path: string)
                 sheet.cell("F" + rp_counter).value(rp.history[0].version); // DR No.
                 sheet.cell("G" + rp_counter).value(rp_counter -38); // 指摘No
                 sheet.cell("H" + rp_counter).value(detectReviewer(rp, json_obj)); // 指摘者
+                if(rp.add_time) { sheet.cell("I" + rp_counter).value(new Date(rp.add_time)).style("numberFormat", "'yy/mm/dd"); } // 指摘日
                 sheet.cell("Q" + rp_counter).value(summarizeComment(ReviewPointManager.REVIEWER, rp, json_obj)); // 指摘詳細
                 sheet.cell("R" + rp_counter).value(detectReviewee(rp, json_obj)); // 処置担当
                 sheet.cell("S" + rp_counter).value(summarizeComment(ReviewPointManager.REVIEWEE, rp, json_obj)); // 処置内容
+                if(rp.done_time) { sheet.cell("T" + rp_counter).value(new Date(rp.done_time)).style("numberFormat", "'yy/mm/dd"); }// 指摘日
                 if(rp.isClosed === true) { sheet.cell("V" + rp_counter).value("●：確認完了");} // 完了判定
                 // 処置不承知内容は記載不要とする（バージョンで管理・表示しているので）
                 if(getNameFromDefinedTable("BC", "factor_reviewer", rp, sheet)){ 
