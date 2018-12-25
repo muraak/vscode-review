@@ -26,6 +26,7 @@ export function convert(excel_path: string)
             let rp_counter = 39;
 
             rp_list.forEach(rp => {
+                sheet.cell("E" + rp_counter).value(detectDocVer(json_obj.part, rp.history[0].version)); // Doc Ver.
                 sheet.cell("F" + rp_counter).value(rp.history[0].version); // DR No.
                 sheet.cell("G" + rp_counter).value(rp_counter -38); // 指摘No
                 sheet.cell("H" + rp_counter).value(detectReviewer(rp, json_obj)); // 指摘者
@@ -33,7 +34,7 @@ export function convert(excel_path: string)
                 sheet.cell("Q" + rp_counter).value(summarizeComment(ReviewPointManager.REVIEWER, rp, json_obj)); // 指摘詳細
                 sheet.cell("R" + rp_counter).value(detectReviewee(rp, json_obj)); // 処置担当
                 sheet.cell("S" + rp_counter).value(summarizeComment(ReviewPointManager.REVIEWEE, rp, json_obj)); // 処置内容
-                if(rp.done_time) { sheet.cell("T" + rp_counter).value(new Date(rp.done_time)).style("numberFormat", "'yy/mm/dd"); }// 指摘日
+                if(rp.done_time) { sheet.cell("T" + rp_counter).value(new Date(rp.done_time)).style("numberFormat", "'yy/mm/dd"); }// 処置記入日
                 if(rp.isClosed === true) { sheet.cell("V" + rp_counter).value("●：確認完了");} // 完了判定
                 // 処置不承知内容は記載不要とする（バージョンで管理・表示しているので）
                 if(getNameFromDefinedTable("BC", "factor_reviewer", rp, sheet)){ 
@@ -106,4 +107,22 @@ function getNameFromDefinedTable(row :string, key :string, rp :ReviewPoint, shee
     else {
         return sheet.cell(row + (3 + offset_value)).value();
     }
+}
+
+function detectDocVer(part_history: number[], rp_version: number)
+{
+    let doc_ver = 0;
+
+    for(var i = 0; i < part_history.length; i++) {
+        
+        if(part_history[i] === ReviewPointManager.REVIEWEE) {
+            doc_ver++; // this version was committed as REVIEWEE
+        }
+
+        if(rp_version === i) {
+            break;
+        }
+    }
+
+    return doc_ver;
 }
