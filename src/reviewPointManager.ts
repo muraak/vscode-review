@@ -72,8 +72,7 @@ export class ReviewPoint {
         }
 
         if(!author) {
-            const os = require("os");
-            this.author = os.userInfo().username;
+            this.author = this.getUserName();
         }
         else {
             this.author = author;
@@ -81,10 +80,25 @@ export class ReviewPoint {
     }
 
     public commit(current_version: number) {
-        const os = require("os");
-        this.author = os.userInfo().username; // update author to committer
+        this.author = this.getUserName(); // update author to committer
         this.history.push(this.deepcopy());
         this.reflesh(current_version);
+    }
+
+    private getUserName() :string
+    {
+        let username = vscode.workspace.getConfiguration("review", null).get<string>("username");
+        
+        if(username === "") {
+            const os = require("os");
+            username = os.userInfo().username;
+        }
+
+        if(!username) {
+            username = "undefined";
+        }
+
+        return username;
     }
 
 

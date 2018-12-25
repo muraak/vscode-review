@@ -38,6 +38,17 @@
                     "command": "review.addReviewPoint"
                 }
             ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "vscode review configuration",
+            "properties": {
+                "review.username": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": ""
+                }
+            }
         }
     },
     "scripts": {
