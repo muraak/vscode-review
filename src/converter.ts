@@ -37,8 +37,8 @@ export function convert(excel_path: string)
                 if(rp.done_time) { sheet.cell("T" + rp_counter).value(new Date(rp.done_time)).style("numberFormat", "'yy/mm/dd"); }// 処置記入日
                 if(rp.isClosed === true) { sheet.cell("V" + rp_counter).value("●：確認完了");} // 完了判定
                 // 処置不承知内容は記載不要とする（バージョンで管理・表示しているので）
-                if(getNameFromDefinedTable("BC", "factor_reviewer", rp, sheet)){ 
-                    sheet.cell("Y" + rp_counter).value(getNameFromDefinedTable("BC", "factor_coder", rp, sheet)); } // 指摘要因（担当者）
+                if(getNameFromDefinedTable("BC", "factor_coder", rp, sheet)){ 
+                     sheet.cell("Y" + rp_counter).value(getNameFromDefinedTable("BC", "factor_coder", rp, sheet)); } // 指摘要因（担当者）
                 if(getNameFromDefinedTable("BL", "make_factor", rp, sheet)){ 
                     sheet.cell("AA" + rp_counter).value(getNameFromDefinedTable("BL", "make_factor", rp, sheet)); } // 作込み要因（担当者）
                 if(getNameFromDefinedTable("AX", "factor_reviewer", rp, sheet)){ 
