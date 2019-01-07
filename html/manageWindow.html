@@ -17,25 +17,6 @@ body{
     margin-left: 30px;
     width: 90%;
 }
-button {
-    background-color: orangered;
-    border: none;
-    color: white;
-    padding: 5px 5px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    margin: 2px;
-}
-button:hover {
-    background-color: orange;
-    color: white;
-}
-
-.item1, .item2 {
-    color: dodgerblue;
-    font-weight: bold;
-}
 
 .cp_ipselect {
 	overflow: hidden;
@@ -87,11 +68,78 @@ table tr td{
     border-style: none;
 }
 
+/* css variables */
+:root{
+    --reviewer-color: red;
+    --reviewee-color: green;
+    --person-font-weight: bold;
+}
+
+/* description text */
+.item1, .item2 {
+    color: var(--vscode-descriptionForeground);
+    /*font-weight: bold;*/
+}
+
+/* container of optional info */
+.optional{
+    margin-left: 30px;
+    display:none;
+    clear:both;
+}
+
+/* container of closed comments */
+.closedComments{
+    display:none;
+    clear:both;
+}
+
+/* past comment */
+.history{
+    width: 70vw;
+    padding: 10px;
+    background-color: var(--vscode-textBlockQuote-background);
+}
+
+/* current comment(editable) */
+.comment{
+    width: 70vw;
+    border: solid thin;
+    border-color: var(--vscode-input-border);
+    padding: 10px;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+}
+
+/* button */
+button {
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 2px;
+}
+button:hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+/* review point container */
 .rp_frame{
-    border:yellow solid 1px;
+    border: solid medium;
+    border-color: var(--vscode-inputOption-activeBorder);
     border-radius: 5px;
     padding: 5px;
-    box-shadow: 2px 2px 4px black;
+    box-shadow: 4px 4px 8px black;
+}
+
+/* closed review point container */
+.rp_closed{
+    border: solid thin;
+    border-color: var(--vscode-descriptionForeground);
+    box-shadow: none;
 }
 
 </style>

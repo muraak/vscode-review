@@ -171,7 +171,12 @@ export class ReviewPoint {
     {
         let html: string = "";
 
-        html += "<tr><td><div class='rp_frame'>";
+        if(this.isClosed === true) {
+            html += "<tr><td><div class='rp_frame rp_closed'>";
+        }
+        else {
+            html += "<tr><td><div class='rp_frame'>";
+        }
         html += "<div id=" + this.id + " class='rp'>";
         html += "<span class='item2'>file: </span>" + this.file + "<br/>";
         html += "<span class='item2'>range: </span>(" + this.range.start.line.toString() + ", ";
@@ -179,20 +184,29 @@ export class ReviewPoint {
         html += "<br/>";
         html += "</div>";
         
-        html += "<span class='item2'>optional information:</span><br/>";
-        html += "<div class='optional' style='margin-left: 30px;'>";
+        html += "<div onclick='obj=document.getElementById(\"optional." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼show optional info</a>";
+        html += "</div>";
+        html += "<div id='optional." + this.id + "' class='optional'>";
         html += this.getOptionsAsHtml(context);
         html += "</div>";
         
+        if(this.isClosed === true) {
+            html += "<div onclick='obj=document.getElementById(\"comments." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+            html += "<a class='item2' style='cursor:pointer;'>▼show comments</a>";
+            html += "</div>";
+            html += "<div id='comments." + this.id + "' class='closedComments'>";
+        }
         this.history.forEach(e => {
             html += "<span class='item2 ver" + e.version + "'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
-            html += "<div class='history' style='margin-left: 30px; width: 70vw;'>" + e.comment + "</div>";
+            html += "<div class='history'>" + e.comment + "</div>";
         });
         if(this.isClosed !== true) {
             html += "<span class='item2 ver" + this.version + "'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
-            html += "<div class='comment' style='margin-left: 30px; width: 70vw;' id='cmt." + this.id + "'>" + this.comment + "</div>";
+            html += "<div class='comment' id='cmt." + this.id + "'>" + this.comment + "</div>";
         }else {
-            html += "<br/><span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
+            html += "</div>";
+            html += "<span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
         }
         html += "<button class='close' id='cls." + this.id + "'>close</button>";
         html += "<button class='remove' id='rmv." + this.id + "'>remove</button>";
@@ -496,10 +510,10 @@ export class ReviewPointManager {
         for(var i = 0; i <= this.version; i++){
             html += ".ver" + i + "{";
             if(this.part[i] === ReviewPointManager.REVIEWER) {
-                html += "color: red;";
+                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
             }
             else {
-                html += "color: green;";
+                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
             }
             html += "}";
         }

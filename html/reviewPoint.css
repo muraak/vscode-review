@@ -1,0 +1,24 @@
+
+/* container of optional info */
+.optional{
+    margin-left: 30px;
+    display:none;
+    clear:both;
+}
+
+/* past comment */
+.history{
+    margin-left: 30px;
+    width: 70vw;
+}
+
+/* current comment(editable) */
+.comment{
+    margin-left: 30px;
+    width: 70vw;
+    border: solid thin green;
+    padding: 10px;
+}
+
+
+
