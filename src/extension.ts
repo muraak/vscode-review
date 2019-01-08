@@ -106,11 +106,17 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     }
                     return;
                 case 'remove':
-                    reviewPointManager.remove(message.id);
-                    // update html
-                    if (wv_panel) {
-                        wv_panel.webview.html = getManageWindowHtml(context);
-                    }
+                    vscode.window.showWarningMessage('Are you sure to remove?', { modal: true },
+                    { title: 'OK', isCloseAffordance: false },
+                    { title: 'Cancel', isCloseAffordance: true }).then((reason) => {
+                        if(reason!.title === "OK") {
+                            reviewPointManager.remove(message.id);
+                            // update html
+                            if (wv_panel) {
+                                wv_panel.webview.html = getManageWindowHtml(context);
+                            }
+                        }
+                    });
                     return;
                 case 'revice':
                     reviewPointManager.reviceRange(message.id, previous_textEditor);

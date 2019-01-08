@@ -42,9 +42,10 @@ body{
 }
 .cp_ipselect.cp_sl01 {
 	position: relative;
-	border: 1px solid #bbbbbb;
+	border: 1px solid;
+    border-color: var(--vscode-dropdown-border); 
 	border-radius: 2px;
-	background: #ffffff;
+	background: var(--vscode-dropdown-listBackground);
 }
 .cp_ipselect.cp_sl01::before {
 	position: absolute;
@@ -56,17 +57,20 @@ body{
 	content: '';
 	border-left: 6px solid transparent;
 	border-right: 6px solid transparent;
-	border-top: 6px solid #666666;
+	border-top: 6px solid;
+    border-top-color: var(--vscode-dropdown-border);
 	pointer-events: none;
 }
 .cp_ipselect.cp_sl01 select {
 	padding: 8px 8px 8px 8px;
-	color: #666666;
+	color: var(--vscode-dropdown-foreground);
 }
 
 table tr td{
     border-style: none;
 }
+
+/* see:https://code.visualstudio.com/api/references/theme-color */
 
 /* css variables */
 :root{
