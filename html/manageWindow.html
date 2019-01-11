@@ -132,7 +132,7 @@ button:hover {
 
 /* review point container */
 .rp_frame{
-    border: solid medium;
+    border: solid thin;
     border-color: var(--vscode-inputOption-activeBorder);
     border-radius: 5px;
     padding: 5px;
@@ -144,6 +144,24 @@ button:hover {
     border: solid thin;
     border-color: var(--vscode-descriptionForeground);
     box-shadow: none;
+}
+
+.btn-container
+{
+    width: 100%;
+}
+
+.close, .remove
+{
+    float: right;
+    fill: var(--vscode-foreground);
+    margin-left: 3px;
+    margin-right: 3px; 
+}
+
+.close:hover, .remove:hover
+{
+    fill: var(--vscode-inputOption-activeBorder);
 }
 
 </style>

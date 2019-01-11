@@ -81,7 +81,14 @@ function showManageWindow(context: vscode.ExtensionContext) {
     else {
         // create and show webview panel
         wv_panel = vscode.window.createWebviewPanel(
-            "rgDetailSearch", "Review Point List", vscode.ViewColumn.Beside, { enableScripts: true });
+            "rgDetailSearch", "Review Point List", vscode.ViewColumn.Beside, 
+            {
+                enableScripts: true,
+                // And restric the webview to only loading content 
+                // from our extension's `recource` directory.
+                localResourceRoots: [
+                            vscode.Uri.file(path.join(context.extensionPath, 'resource'))
+            ] });
 
         // update html
         wv_panel.webview.html = getManageWindowHtml(context);
@@ -202,6 +209,13 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     const $ = cheerio.load(html);
     $("#summary").html(reviewPointManager.getSummaryAsHtml());
     $("#rptable").html(reviewPointManager.getAsHtml(context));
+
+    // Local path to main script run in the webview
+    const x_svg_path = vscode.Uri.file(path.join(context.extensionPath, 'resource', 'x.svg'));
+    const check_svg_path = vscode.Uri.file(path.join(context.extensionPath, 'resource', 'check.svg'));
+
+    $(".x").attr("src", x_svg_path.with({ scheme: 'vscode-resource' }));
+    $(".check").attr("data", check_svg_path.with({ scheme: 'vscode-resource' }));
 
     return $.html();
 }
