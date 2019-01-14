@@ -8,169 +8,231 @@
     <title>Review Manage Window</title>
 </head>
 <style type="text/css">
-body{
-    margin-top: 30px;
-}
+    body {
+        margin-top: 30px;
+    }
 
-#rptable
-{
-    margin-left: 30px;
-    width: 90%;
-}
+    #rptable {
+        margin-left: 30px;
+        width: 90%;
+    }
 
-.cp_ipselect {
-	overflow: hidden;
-	width: 90%;
-	text-align: center;
-}
-.cp_ipselect select {
-	width: 100%;
-	padding-right: 1em;
-	cursor: pointer;
-	text-indent: 0.01px;
-	text-overflow: ellipsis;
-	border: none;
-	outline: none;
-	background: transparent;
-	background-image: none;
-	box-shadow: none;
-	-webkit-appearance: none;
-	appearance: none;
-}
-.cp_ipselect select::-ms-expand {
-    display: none;
-}
-.cp_ipselect.cp_sl01 {
-	position: relative;
-	border: 1px solid;
-    border-color: var(--vscode-dropdown-border); 
-	border-radius: 2px;
-    color: var(--vscode-dropdown-foreground);
-	background-color: var(--vscode-dropdown-background);
-}
-.cp_ipselect.cp_sl01::before {
-	position: absolute;
-	top: 0.8em;
-	right: 0.9em;
-	width: 0;
-	height: 0;
-	padding: 0;
-	content: '';
-	border-left: 6px solid transparent;
-	border-right: 6px solid transparent;
-	border-top: 6px solid;
-    border-top-color: var(--vscode-dropdown-border);
-	pointer-events: none;
-}
-.cp_ipselect.cp_sl01 select {
-	padding: 8px 8px 8px 8px;
-	color: var(--vscode-dropdown-foreground);
-    background-color: var(--vscode-dropdown-background);
-}
+    .cp_ipselect {
+        overflow: hidden;
+        width: 90%;
+        text-align: center;
+    }
 
-table tr td{
-    border-style: none;
-}
+    .cp_ipselect select {
+        width: 100%;
+        padding-right: 1em;
+        cursor: pointer;
+        text-indent: 0.01px;
+        text-overflow: ellipsis;
+        border: none;
+        outline: none;
+        background: transparent;
+        background-image: none;
+        box-shadow: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
 
-/* see:https://code.visualstudio.com/api/references/theme-color */
+    .cp_ipselect select::-ms-expand {
+        display: none;
+    }
 
-/* css variables */
-:root{
-    --reviewer-color: red;
-    --reviewee-color: green;
-    --person-font-weight: bold;
-}
+    .cp_ipselect.cp_sl01 {
+        position: relative;
+        border: 1px solid;
+        border-color: var(--vscode-dropdown-border);
+        border-radius: 2px;
+        color: var(--vscode-dropdown-foreground);
+        background-color: var(--vscode-dropdown-background);
+    }
 
-/* description text */
-.item1, .item2 {
-    color: var(--vscode-descriptionForeground);
-    /*font-weight: bold;*/
-}
+    .cp_ipselect.cp_sl01::before {
+        position: absolute;
+        top: 0.8em;
+        right: 0.9em;
+        width: 0;
+        height: 0;
+        padding: 0;
+        content: '';
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid;
+        border-top-color: var(--vscode-dropdown-border);
+        pointer-events: none;
+    }
 
-/* container of optional info */
-.optional{
-    margin-left: 30px;
-    display:none;
-    clear:both;
-}
+    .cp_ipselect.cp_sl01 select {
+        padding: 8px 8px 8px 8px;
+        color: var(--vscode-dropdown-foreground);
+        background-color: var(--vscode-dropdown-background);
+    }
 
-/* container of closed comments */
-.closedComments{
-    display:none;
-    clear:both;
-}
+    table tr td {
+        border-style: none;
+    }
 
-/* past comment */
-.history{
-    width: 70vw;
-    padding: 10px;
-    background-color: var(--vscode-textBlockQuote-background);
-}
+    /* see:https://code.visualstudio.com/api/references/theme-color */
 
-/* current comment(editable) */
-.comment{
-    width: 70vw;
-    border: solid thin;
-    border-color: var(--vscode-input-border);
-    padding: 10px;
-    background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-}
+    /* css variables */
+    :root {
+        --reviewer-color: red;
+        --reviewee-color: green;
+        --person-font-weight: bold;
+    }
 
-/* button */
-button {
-    background-color: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    border: none;
-    padding: 5px 5px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    margin: 2px;
-}
-button:hover {
-    background-color: var(--vscode-button-hoverBackground);
-}
+    /* description text */
+    .item1,
+    .item2 {
+        color: var(--vscode-descriptionForeground);
+        /*font-weight: bold;*/
+    }
 
-/* review point container */
-.rp_frame{
-    border: solid thin;
-    border-color: var(--vscode-inputOption-activeBorder);
-    border-radius: 5px;
-    padding: 5px;
-    box-shadow: 4px 4px 8px black;
-}
+    /* container of optional info */
+    .optional {
+        margin-left: 30px;
+        display: none;
+        clear: both;
+    }
 
-/* closed review point container */
-.rp_closed{
-    border: solid thin;
-    border-color: var(--vscode-descriptionForeground);
-    box-shadow: none;
-}
+    /* container of closed comments */
+    .closedComments {
+        display: none;
+        clear: both;
+    }
 
-.btn-container
-{
-    width: 100%;
-}
+    /* past comment */
+    .history {
+        width: 70vw;
+        padding: 10px;
+        background-color: var(--vscode-textBlockQuote-background);
+    }
 
-.close, .remove
-{
-    float: right;
-    fill: var(--vscode-foreground);
-    margin-left: 3px;
-    margin-right: 3px; 
-}
+    /* current comment(editable) */
+    .comment {
+        width: 70vw;
+        border: solid thin;
+        border-color: var(--vscode-input-border);
+        padding: 10px;
+        background-color: var(--vscode-input-background);
+        color: var(--vscode-input-foreground);
+    }
 
-.close:hover, .remove:hover
-{
-    fill: var(--vscode-inputOption-activeBorder);
-}
+    /* button */
+    button {
+        background-color: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border: none;
+        padding: 5px 5px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        margin: 2px;
+    }
 
+    button:hover {
+        background-color: var(--vscode-button-hoverBackground);
+    }
+
+    /* review point container */
+    .rp_frame {
+        border: solid thin;
+        border-color: var(--vscode-inputOption-activeBorder);
+        border-radius: 5px;
+        padding: 5px;
+        box-shadow: 4px 4px 8px black;
+    }
+
+    /* closed review point container */
+    .rp_closed {
+        border: solid thin;
+        border-color: var(--vscode-descriptionForeground);
+        box-shadow: none;
+    }
+
+    .btn-container {
+        width: 100%;
+    }
+
+    .close,
+    .remove {
+        float: right;
+        fill: var(--vscode-foreground);
+        margin-left: 3px;
+        margin-right: 3px;
+    }
+
+    .close:hover,
+    .remove:hover {
+        fill: var(--vscode-inputOption-activeBorder);
+    }
+
+    #filter-btn {
+        height: 16px;
+        padding: 6px;
+        padding-left: 0px;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    #filter-txt {
+        vertical-align: top;
+    }
+
+    #filter-svg {
+        fill: var(--vscode-foreground);
+        transform: rotateZ(-90deg);
+    }
+
+    #filter-group-container {
+        margin-bottom: 10px;
+        display: none;
+    }
+
+    #filter-container-refine {
+        width: 45%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    #filter-container-sort {
+        width: 45%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .refine, .sort {
+        cursor: pointer;
+    }
+
+    input {
+        background-color: var(--vscode-input-background);
+        border: none;
+        color: var(--vscode-input-foreground);
+    }
+
+    hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid var(--vscode-descriptionForeground);
+        margin: 1em 0;
+        padding: 0;
+    }
+
+    #filter-hline {
+        width: 90%;
+    }
 </style>
+
 <body>
-        <script>
-            const vscode = acquireVsCodeApi();
-        </script>
+    <script>
+        const vscode = acquireVsCodeApi();
+    </script>
     <button id="clearHrt">clear highright</button>
     <button id="save">save</button>
     <button id="commit">commit</button>
@@ -178,11 +240,70 @@ button:hover {
     <p class="item1">summary: </p>
     <div id="summary" style="margin-left: 30px;"></div>
     <p class="item1">review points: </p>
+    <div id="filter-btn" onclick="obj=document.getElementById('filter-group-container').style; obj.display=(obj.display==='none')?'block':'none';">
+        <span id="filter-txt">filter</span>
+        <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M4 7H3V2h1v5zm-1 7h1v-3H3v3zm5 0h1V8H8v6zm5 0h1v-2h-1v2zm1-12h-1v6h1V2zM9 2H8v2h1V2zM5 8H2c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1zm5-3H7c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1zm5 4h-3c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1z" /></svg>
+    </div>
+    <div id="filter-group-container">
+        <div id="filter-container-refine">
+            <h4>refinement</h4>
+            <hr />
+            <p class="refine" id="unclosed">unclosed review points</p>
+            <p class="refine" id="closed">closed review points</p>
+            <div><span>file: </span><input class="refine_with_value" id="refine.file" type="text" /></div>
+        </div>
+        <div id="filter-container-sort">
+            <h4>sort</h4>
+            <hr />
+            <p class="sort" id="file">file and posision</p>
+            <p class="sort" id="version">version</p>
+        </div>
+        <script>
+            {
+                var arr1 = document.getElementsByClassName('refine');
+                Array.prototype.forEach.call(arr1, function (element) {
+                    element.onclick = function () {
+                        vscode.postMessage({
+                            command: "refine",
+                            id: element.id
+                        });
+                    };
+                });
+
+                var arr2 = document.getElementsByClassName('refine_with_value');
+                Array.prototype.forEach.call(arr2, function (element) {
+                    element.addEventListener('keypress', function (e) {
+
+                        if (e.keyCode === 13) {
+                            vscode.postMessage({
+                                command: "refine_with_value",
+                                id: element.id,
+                                value: element.value
+                            });
+                        }
+                    });
+                });
+            }
+            {
+                var arr1 = document.getElementsByClassName('sort');
+                Array.prototype.forEach.call(arr1, function (element) {
+                    element.onclick = function () {
+                        vscode.postMessage({
+                            command: "sort",
+                            id: element.id
+                        });
+                    };
+                });
+            }
+        </script>
+    </div>
+    <hr id="filter-hline" />
     <table border="0" id="rptable">
     </table>
     <script>
         var rps = document.getElementsByClassName('rp');
-        Array.prototype.forEach.call(rps, function(element) {
+        Array.prototype.forEach.call(rps, function (element) {
             element.onclick = function () {
                 vscode.postMessage({
                     command: "jump",
@@ -192,13 +313,13 @@ button:hover {
         });
 
         var edits = document.getElementsByClassName('comment');
-        Array.prototype.forEach.call(edits, function(element) {
-            element.onclick = function() {
+        Array.prototype.forEach.call(edits, function (element) {
+            element.onclick = function () {
                 element.setAttribute("contenteditable", "true");
             }
 
             // onChange() doesn't fire for contenteditable element!
-            element.onblur = function() {
+            element.onblur = function () {
                 vscode.postMessage({
                     command: "comment",
                     id: element.id,
@@ -208,8 +329,8 @@ button:hover {
         });
 
         var rmvs = document.getElementsByClassName('remove');
-        Array.prototype.forEach.call(rmvs, function(element) {
-            element.onclick = function() {
+        Array.prototype.forEach.call(rmvs, function (element) {
+            element.onclick = function () {
                 vscode.postMessage({
                     command: "remove",
                     id: element.id,
@@ -218,8 +339,8 @@ button:hover {
         });
 
         var clss = document.getElementsByClassName('close');
-        Array.prototype.forEach.call(clss, function(element) {
-            element.onclick = function() {
+        Array.prototype.forEach.call(clss, function (element) {
+            element.onclick = function () {
                 vscode.postMessage({
                     command: "close",
                     id: element.id,
@@ -228,8 +349,8 @@ button:hover {
         });
 
         var revs = document.getElementsByClassName('revice');
-        Array.prototype.forEach.call(revs, function(element) {
-            element.onclick = function() {
+        Array.prototype.forEach.call(revs, function (element) {
+            element.onclick = function () {
                 vscode.postMessage({
                     command: "revice",
                     id: element.id,
@@ -238,8 +359,8 @@ button:hover {
         });
 
         var chks = document.getElementsByClassName('opt_chkbox');
-        Array.prototype.forEach.call(chks, function(element) {
-            element.onclick = function() {
+        Array.prototype.forEach.call(chks, function (element) {
+            element.onclick = function () {
                 vscode.postMessage({
                     command: "opt_chkbox",
                     id: element.id,
@@ -249,9 +370,9 @@ button:hover {
         });
 
         var lsts = document.getElementsByClassName('opt_list');
-        Array.prototype.forEach.call(lsts, function(element) {
-            element.addEventListener("change", function() {
-                var selectedItem = this.options[ this.selectedIndex ];
+        Array.prototype.forEach.call(lsts, function (element) {
+            element.addEventListener("change", function () {
+                var selectedItem = this.options[this.selectedIndex];
                 vscode.postMessage({
                     command: "opt_list",
                     id: element.id,
@@ -260,33 +381,33 @@ button:hover {
             });
         });
 
-        document.getElementById("clearHrt").onclick = function(){
+        document.getElementById("clearHrt").onclick = function () {
             vscode.postMessage({
                 command: "clearHrt"
             });
         };
 
-        document.getElementById("commit").onclick = function(){
+        document.getElementById("commit").onclick = function () {
             vscode.postMessage({
                 command: "commit"
             });
         };
 
-        document.getElementById("save").onclick = function(){
+        document.getElementById("save").onclick = function () {
             vscode.postMessage({
                 command: "save"
             });
         };
 
-        document.getElementById("revert").onclick = function(){
+        document.getElementById("revert").onclick = function () {
             vscode.postMessage({
                 command: "revert"
             });
         };
 
         var part = document.getElementsByName('partRadioBtn');
-        Array.prototype.forEach.call(part, function(element) {
-            element.addEventListener("change", function() {
+        Array.prototype.forEach.call(part, function (element) {
+            element.addEventListener("change", function () {
                 vscode.postMessage({
                     command: "part",
                     value: this.value

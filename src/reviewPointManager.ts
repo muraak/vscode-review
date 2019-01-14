@@ -178,7 +178,10 @@ export class ReviewPoint {
             html += "<tr><td><div class='rp_frame'>";
         }
         html += "<div class='btn-container'>";
+        // octicon:https://octicons.github.com/
+        // below svg is hard copy of 'x.svg' of octicon.
         html += `<svg class='remove x' id='rmv.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg>`;
+        // below svg is hard copy of 'check.svg' of octicon.
         html += `<svg class='close check' id='cls.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg>`;
         html += "</div>";
         html += "<div id=" + this.id + " class='rp'>";
@@ -500,10 +503,30 @@ export class ReviewPointManager {
         return html;
     }
 
-    public getAsHtml(context :vscode.ExtensionContext) {
+    public getAsHtml(context :vscode.ExtensionContext, refineBy?:string, sortBy?:string, value?: string) {
         let html: string = "";
+        let list = undefined;
 
-        this.rp_list.forEach(element => {
+        if(refineBy === "unclosed") {
+            list = this.rp_list.filter((value)=>{
+                return value.isClosed === false;
+            });
+        }
+        else if(refineBy === "closed") {
+            list = this.rp_list.filter((value)=>{
+                return value.isClosed === true;
+            });
+        }
+        else if(refineBy === "refine.file") {
+            list = this.rp_list.filter((val)=>{
+                return val.file.includes(value!);
+            });
+        }
+        else {
+            list = this.rp_list;
+        }
+
+        list!.forEach(element => {
             html += element.getAsHtml(context);
         });
 

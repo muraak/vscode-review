@@ -171,6 +171,22 @@ function showManageWindow(context: vscode.ExtensionContext) {
                         wv_panel.webview.html = getManageWindowHtml(context);
                     }
                     return;
+                case 'refine':
+                    // update html with filter
+                    if (wv_panel) {
+                        wv_panel.webview.html = getManageWindowHtml(context, message.id);
+                    }
+                    return;
+                case 'refine_with_value':
+                    // update html with filter
+                    if (wv_panel) {
+                        wv_panel.webview.html 
+                            = getManageWindowHtml(context, message.id, undefined, message.value);
+                    }
+                    return;
+                case 'sort':
+                    console.log("sort hooked!");
+                    return;
             }
         });
 
@@ -200,7 +216,7 @@ function addReviewPoint() {
     }
 }
 
-function getManageWindowHtml(context: vscode.ExtensionContext) {
+function getManageWindowHtml(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
     let html = fs.readFileSync(
         vscode.Uri.file(path.join(context.extensionPath, 'html', 'manageWindow.html')).fsPath,
         'utf8');
@@ -208,14 +224,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext) {
     const cheerio = require('cheerio');
     const $ = cheerio.load(html);
     $("#summary").html(reviewPointManager.getSummaryAsHtml());
-    $("#rptable").html(reviewPointManager.getAsHtml(context));
-
-    // Local path to main script run in the webview
-    const x_svg_path = vscode.Uri.file(path.join(context.extensionPath, 'resource', 'x.svg'));
-    const check_svg_path = vscode.Uri.file(path.join(context.extensionPath, 'resource', 'check.svg'));
-
-    $(".x").attr("src", x_svg_path.with({ scheme: 'vscode-resource' }));
-    $(".check").attr("data", check_svg_path.with({ scheme: 'vscode-resource' }));
+    $("#rptable").html(reviewPointManager.getAsHtml(context, refineBy, sortBy, value));
 
     return $.html();
 }
