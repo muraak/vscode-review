@@ -128,7 +128,7 @@ export class ReviewPoint {
                 new vscode.Position(this.range.end.line, this.range.end.character)),
             this.comment,
             this.id,
-            undefined,
+            this.isClosed,
             this.author);
     }
 
@@ -470,7 +470,15 @@ export class ReviewPointManager {
     }
 
     public close(cls_id :string) {
-        this.findById(cls_id.replace("cls.", ""))!.isClosed = true;
+        let rp = this.findById(cls_id.replace("cls.", ""));
+
+        if(rp!.isClosed === false) {
+            rp!.isClosed = true;
+        }
+        else
+        {
+            rp!.isClosed = false;
+        }
     }
 
     public remove(rmv_id: string) {
