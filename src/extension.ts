@@ -185,7 +185,11 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     }
                     return;
                 case 'sort':
-                    console.log("sort hooked!");
+                    // update html with sort
+                    if (wv_panel) {
+                        wv_panel.webview.html 
+                            = getManageWindowHtml(context, undefined, message.id);
+                    }
                     return;
             }
         });

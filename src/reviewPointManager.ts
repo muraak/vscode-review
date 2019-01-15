@@ -522,6 +522,22 @@ export class ReviewPointManager {
                 return val.file.includes(value!);
             });
         }
+        else if(sortBy === "file") {
+            list = this.rp_list.slice().sort((a, b)=> {
+                if(a.file !== b.file) {
+                    return (a.file < b.file)?-1:1;
+                }
+                else 
+                {
+                    return (a.range.start.isBefore(b.range.start))?-1:1;
+                }
+            });
+        }
+        else if(sortBy === "version") {
+            list = this.rp_list.slice().sort((a, b)=> {
+                return a.version - b.version;
+            });
+        }
         else {
             list = this.rp_list;
         }
