@@ -188,7 +188,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     // update html with sort
                     if (wv_panel) {
                         wv_panel.webview.html 
-                            = getManageWindowHtml(context, undefined, message.id);
+                            = getManageWindowHtml(context, undefined, message.id, undefined);
                     }
                     return;
             }

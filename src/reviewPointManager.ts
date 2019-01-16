@@ -477,7 +477,9 @@ export class ReviewPointManager {
         }
         else
         {
-            rp!.isClosed = false;
+            if(rp!.version === this.version) {
+                rp!.isClosed = false;
+            }
         }
     }
 
@@ -543,7 +545,12 @@ export class ReviewPointManager {
         }
         else if(sortBy === "version") {
             list = this.rp_list.slice().sort((a, b)=> {
-                return a.version - b.version;
+                let ver_a, ver_b;
+
+                ver_a = (a.history === [])?a.version:a.history[0].version;
+                ver_b = (a.history === [])?b.version:b.history[0].version;
+                
+                return ver_a - ver_b;
             });
         }
         else {
