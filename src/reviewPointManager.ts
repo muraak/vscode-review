@@ -102,7 +102,9 @@ export class ReviewPoint {
     }
 
 
-    public revert() {
+    public revert() :boolean{
+        
+        if(this.history.length !== 0) {
         let prev_rp = this.history.pop();
         this.version = prev_rp!.version;
         this.file = prev_rp!.file;
@@ -112,6 +114,11 @@ export class ReviewPoint {
         this.comment = prev_rp!.comment;
         this.isClosed = prev_rp!.isClosed;
         this.author = prev_rp!.author;
+
+        return false;
+        }
+
+        return true;
     }
 
     public reflesh(current_version: number) {
@@ -375,6 +382,7 @@ export class ReviewPointManager {
         if(this.version < 1) {
             return;
         }
+        this.part.pop();
         this.history.pop();
         this.rp_list.forEach(element => {
             if(element.isClosed === true) {
@@ -495,10 +503,6 @@ export class ReviewPointManager {
     {
         let html: string = "";
         html += "<span class='item2'>current version: </span>" + this.version + "<br/>";
-        // this.history.forEach(h => {
-        //     html += "<div style='margin-left: 30px;'>" + h + "</div>";
-        // });
-        // html += "<br/>";
         html += "<div><span class='item2'>current part: </span>";
         if(this.part[this.version] === ReviewPointManager.REVIEWER) {
             html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>reviewer</label>";
