@@ -103,22 +103,23 @@ export class ReviewPoint {
 
 
     public revert() :boolean{
-        
         if(this.history.length !== 0) {
-        let prev_rp = this.history.pop();
-        this.version = prev_rp!.version;
-        this.file = prev_rp!.file;
-        this.range = new vscode.Range(
-            new vscode.Position(prev_rp!.range.start.line, prev_rp!.range.start.character),
-            new vscode.Position(prev_rp!.range.end.line, prev_rp!.range.end.character));
-        this.comment = prev_rp!.comment;
-        this.isClosed = prev_rp!.isClosed;
-        this.author = prev_rp!.author;
+            let prev_rp = this.history.pop();
+            this.version = prev_rp!.version;
+            this.file = prev_rp!.file;
+            this.range = new vscode.Range(
+                new vscode.Position(prev_rp!.range.start.line, prev_rp!.range.start.character),
+                new vscode.Position(prev_rp!.range.end.line, prev_rp!.range.end.character));
+            this.comment = prev_rp!.comment;
+            this.isClosed = prev_rp!.isClosed;
+            this.author = prev_rp!.author;
 
-        return false;
+            return true;
         }
-
-        return true;
+        else {
+            // cannot revert because history is empty
+            return false;
+        }
     }
 
     public reflesh(current_version: number) {
@@ -384,15 +385,36 @@ export class ReviewPointManager {
         }
         this.part.pop();
         this.history.pop();
+
+        let remove_id_list :string[]= [];
         this.rp_list.forEach(element => {
             if(element.isClosed === true) {
                 if(element.version === this.version) {
-                    element.revert();
+                    if(element.history.length === 0) {
+                        // remove element itself because history is now empty.
+                        // !NOTICE: Do not remove element here because current outer Foreach gonna be broken!
+                        remove_id_list.push(element.id);
+                    }
+                    else {
+                        element.revert()
+                    }
                 }
             }
             else {
-                element.revert();
+                if(element.history.length === 0) {
+                    // remove element itself because history is now empty.
+                    // !NOTICE: Do not remove element here because current outer Foreach gonna be broken!
+                    remove_id_list.push(element.id);
+                }
+                else {
+                    element.revert();
+                }
             }
+        });
+
+        // remove elements in remove list
+        remove_id_list.forEach(element => {
+            this.rp_list.splice(this.rp_list.findIndex(it => {return it.id === element;})  ,1);
         });
         this.version--;
 
