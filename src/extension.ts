@@ -149,7 +149,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
 
                     if (message.message === "") {
                         vscode.window.showErrorMessage(
-                            "Please commit with message.", 
+                            "Please commit with message.", d
                             { modal: true },);
                     }
                     else {
