@@ -68,6 +68,7 @@
     "dependencies": {
         "cheerio": "^1.0.0-rc.2",
         "dateformat": "^3.0.3",
+        "event-stream": "^3.3.4",
         "g": "^2.0.1",
         "html2plaintext": "^2.1.0",
         "request": "^2.88.0",

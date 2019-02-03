@@ -123,6 +123,7 @@
 
     /* button */
     button {
+        width: 56px;
         background-color: var(--vscode-button-background);
         color: var(--vscode-button-foreground);
         border: none;
@@ -130,7 +131,6 @@
         text-align: center;
         text-decoration: none;
         display: inline-block;
-        margin: 2px;
     }
 
     button:hover {
@@ -229,16 +229,23 @@
     #filter-hline {
         width: 90%;
     }
+
+    #commit-msg {
+        width: 100%;
+    }
 </style>
 
 <body>
     <script>
         const vscode = acquireVsCodeApi();
     </script>
-    <button id="clearHrt">clear highright</button>
-    <button id="save">save</button>
-    <button id="commit">commit</button>
-    <button id="revert">revert</button>
+    <p class="item1">operation: </p>
+    <div><textarea id="commit-msg" placeholder="add commit message..."></textarea></div>
+    <div>
+        <button id="save">save</button>
+        <button id="commit">commit</button>
+        <button id="revert">revert</button>
+    </div>
     <p class="item1">summary: </p>
     <div id="summary" style="margin-left: 30px;"></div>
     <p class="item1">review points: </p>
@@ -383,12 +390,6 @@
             });
         });
 
-        document.getElementById("clearHrt").onclick = function () {
-            vscode.postMessage({
-                command: "clearHrt"
-            });
-        };
-
         document.getElementById("commit").onclick = function () {
             vscode.postMessage({
                 command: "commit"
@@ -406,7 +407,7 @@
                 vscode.postMessage({
                     command: "save"
                 });
-            }z
+            } z
         };
 
         document.getElementById("revert").onclick = function () {
