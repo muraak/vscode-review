@@ -114,7 +114,6 @@
 
     /* current comment(editable) */
     .comment {
-        width: 70vw;
         border: solid thin;
         border-color: var(--vscode-input-border);
         padding: 10px;
@@ -402,6 +401,14 @@
             });
         };
 
+        window.onkeydown = function () {
+            if ((event.ctrlKey || event.metaKey) && event.which == 83) {
+                vscode.postMessage({
+                    command: "save"
+                });
+            }z
+        };
+
         document.getElementById("revert").onclick = function () {
             vscode.postMessage({
                 command: "revert"
@@ -417,6 +424,7 @@
                 });
             });
         });
+
     </script>
 </body>
 
