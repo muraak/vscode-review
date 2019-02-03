@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-type KeyValuePair = {key :string, value :any};
+type KeyValuePair = { key: string, value: any };
 
 export class ReviewPoint {
     public file: string;
@@ -14,18 +14,18 @@ export class ReviewPoint {
     public history: ReviewPoint[] = [];
     public version: number;
     public isClosed: boolean;
-    public author :string;
-    public options :KeyValuePair[] = [];
+    public author: string;
+    public options: KeyValuePair[] = [];
 
-    public add_time :Date | undefined= undefined; // should be set once when added this rp
-    public done_time :Date | undefined = undefined; // should be updated when committed as reviewee
+    public add_time: Date | undefined = undefined; // should be set once when added this rp
+    public done_time: Date | undefined = undefined; // should be updated when committed as reviewee
 
     setAddTime() {
-        if(this.add_time === undefined) { this.add_time =  new Date(Date.now());}
+        if (this.add_time === undefined) { this.add_time = new Date(Date.now()); }
     }
 
     updateDoneTime() {
-        this.done_time =  new Date(Date.now());
+        this.done_time = new Date(Date.now());
     }
 
     getAddTime() {
@@ -37,14 +37,14 @@ export class ReviewPoint {
     }
 
     constructor(
-        version :number, 
-        file :string, 
-        range :vscode.Range, 
-        comment? :string,
-        id? :string,
-        isClosed? :boolean,
-        author? :string) {
-        
+        version: number,
+        file: string,
+        range: vscode.Range,
+        comment?: string,
+        id?: string,
+        isClosed?: boolean,
+        author?: string) {
+
         this.version = version;
         this.file = file;
         this.range = range;
@@ -64,14 +64,14 @@ export class ReviewPoint {
             this.id = id;
         }
 
-        if(!isClosed) {
+        if (!isClosed) {
             this.isClosed = false;
         }
         else {
             this.isClosed = isClosed;
         }
 
-        if(!author) {
+        if (!author) {
             this.author = this.getUserName();
         }
         else {
@@ -85,16 +85,15 @@ export class ReviewPoint {
         this.reflesh(current_version);
     }
 
-    private getUserName() :string
-    {
+    private getUserName(): string {
         let username = vscode.workspace.getConfiguration("review", null).get<string>("username");
-        
-        if(username === "") {
+
+        if (username === "") {
             const os = require("os");
             username = os.userInfo().username;
         }
 
-        if(!username) {
+        if (!username) {
             username = "undefined";
         }
 
@@ -102,8 +101,8 @@ export class ReviewPoint {
     }
 
 
-    public revert() :boolean{
-        if(this.history.length !== 0) {
+    public revert(): boolean {
+        if (this.history.length !== 0) {
             let prev_rp = this.history.pop();
             this.version = prev_rp!.version;
             this.file = prev_rp!.file;
@@ -160,26 +159,25 @@ export class ReviewPoint {
                         new vscode.Position(h.range[1].line, h.range[1].character)), h.comment, h.id, h.isClosed, h.author));
         });
 
-        obj.options.forEach((opt:any) => {
-            rp.options.push({key: opt.key, value: opt.value});
+        obj.options.forEach((opt: any) => {
+            rp.options.push({ key: opt.key, value: opt.value });
         });
 
-         if(obj.add_time) {
-             rp.add_time = obj.add_time;
-         }
+        if (obj.add_time) {
+            rp.add_time = obj.add_time;
+        }
 
-         if(obj.done_time) {
-             rp.done_time = obj.done_time;
-         }
+        if (obj.done_time) {
+            rp.done_time = obj.done_time;
+        }
 
         return rp;
     }
 
-    public getAsHtml(context :vscode.ExtensionContext)
-    {
+    public getAsHtml(context: vscode.ExtensionContext) {
         let html: string = "";
 
-        if(this.isClosed === true) {
+        if (this.isClosed === true) {
             html += "<tr><td><div class='rp_frame rp_closed'>";
         }
         else {
@@ -200,15 +198,15 @@ export class ReviewPoint {
         html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
-        
+
         html += "<div onclick='obj=document.getElementById(\"optional." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
         html += "<a class='item2' style='cursor:pointer;'>▼show optional info</a>";
         html += "</div>";
         html += "<div id='optional." + this.id + "' class='optional'>";
         html += this.getOptionsAsHtml(context);
         html += "</div>";
-        
-        if(this.isClosed === true) {
+
+        if (this.isClosed === true) {
             html += "<div onclick='obj=document.getElementById(\"comments." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
             html += "<a class='item2' style='cursor:pointer;'>▼show comments</a>";
             html += "</div>";
@@ -218,12 +216,12 @@ export class ReviewPoint {
             html += "<span class='item2 ver" + e.version + "'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
             html += "<div class='history'>" + e.comment + "</div>";
         });
-        if(this.isClosed !== true) {
-            html += "<span class='item2 ver" + this.version + "'>comment(ver." + this.version + ") by " +  this.author + ": </span><br/>";
+        if (this.isClosed !== true) {
+            html += "<span class='item2 ver" + this.version + "'>comment(ver." + this.version + ") by " + this.author + ": </span><br/>";
             html += "<div class='comment' id='cmt." + this.id + "'>" + this.comment + "</div>";
-        }else {
+        } else {
             html += "</div>";
-            html += "<span class='item2'>this review point was closed at ver." + this.version + " by " + this.author +  "</span><br/>";
+            html += "<span class='item2'>this review point was closed at ver." + this.version + " by " + this.author + "</span><br/>";
         }
 
         html += "</div></td></tr>";
@@ -232,60 +230,60 @@ export class ReviewPoint {
     }
 
 
-    public initializeOption(context :vscode.ExtensionContext)
-    {
-        try{
+    public initializeOption(context: vscode.ExtensionContext) {
+        try {
 
             let optionformat = this.loadOptionsAsArrayObject(context);
-            optionformat.forEach((element :any) => {
+            optionformat.forEach((element: any) => {
                 this.options.push({
                     key: element!.id,
-                    value: element!.defaultValue});
+                    value: element!.defaultValue
+                });
             });
         }
-        catch(e){
+        catch (e) {
             vscode.window.showErrorMessage("parsing of optionalFormat.json was failed.\n" + e.message);
         }
     }
 
-    public getOptionsAsHtml(context :vscode.ExtensionContext) {
-        
+    public getOptionsAsHtml(context: vscode.ExtensionContext) {
+
         let html: string = "<div>";
 
         let format = this.loadOptionsAsArrayObject(context);
 
-        format.forEach((element :any) => {
-            
+        format.forEach((element: any) => {
+
             // get current option's value
-            let value :any; 
-            
+            let value: any;
+
             try {
-                value = this.options.find(x => {return x.key === element.id;})!.value;
+                value = this.options.find(x => { return x.key === element.id; })!.value;
             }
             catch
             {
                 value = element.defaultValue;
             }
 
-            if(element.type === 0) {
+            if (element.type === 0) {
                 // this option is gonna be a checkbox
 
-                if(value === true){
+                if (value === true) {
                     html += "<input type='checkbox' id='" + this.id + "." + element.id + "' checked='checked' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
                 else {
                     html += "<input type='checkbox' id='" + this.id + "." + element.id + "' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
             }
-            else if(element.type === 1) {
+            else if (element.type === 1) {
                 // this option is gonna be a drop-down list
 
                 html += "<span style='width: 200px; display: inline-block;'>" + element.name + ": </span>";
                 html += "<div style='width: 200px; display: inline-block;'>";
                 html += "<select class='opt_list cp_ipselect cp_sl01' id='" + this.id + "." + element.id + "'>";
 
-                element.listValues.forEach((elm :any)=> {
-                    if(elm.value === value){
+                element.listValues.forEach((elm: any) => {
+                    if (elm.value === value) {
                         html += "<option value=" + elm.value + " selected>" + elm.name + "</option>";
                     }
                     else {
@@ -296,33 +294,33 @@ export class ReviewPoint {
                 html += "</select></div><br/>";
 
                 // parse enableWhen setting and add corresponding js code to html
-                if("enableWhen" in element) {
+                if ("enableWhen" in element) {
                     html += "<script>";
-                    html += "document.getElementById('"  + this.id + "." + element.id + "').disabled = true;";
-                    element.enableWhen.caseValues.forEach((it : any) => {
-                        html += "if(document.getElementById('" + this.id + "." +  element.enableWhen.target + "').options[document.getElementById('" + this.id + "." +  element.enableWhen.target + "').selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false; }";
+                    html += "document.getElementById('" + this.id + "." + element.id + "').disabled = true;";
+                    element.enableWhen.caseValues.forEach((it: any) => {
+                        html += "if(document.getElementById('" + this.id + "." + element.enableWhen.target + "').options[document.getElementById('" + this.id + "." + element.enableWhen.target + "').selectedIndex].value === '" + it + "'){ document.getElementById('" + this.id + "." + element.id + "').disabled = false; }";
                     });
-                    html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){";
-                    html += "document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;";
-                        html += "vscode.postMessage({";
-                        html += "command: 'opt_list',";
-                        html += "id: '" + this.id + "." + element.id +"',";
-                        html += "value: 0";
-                        html += "});";
-                    html += "}";                    
-                    html += "document.getElementById('" + this.id + "." +  element.enableWhen.target + "').addEventListener('change', function() {";
-                        html += "document.getElementById('"  + this.id + "." + element.id + "').disabled = true;";
-                        element.enableWhen.caseValues.forEach((it : any) => {
-                            html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('"  + this.id + "." + element.id + "').disabled = false; }";
-                        });
-                        html += "if(document.getElementById('"  + this.id + "." + element.id + "').disabled === true){";
-                            html += "document.getElementById('"  + this.id + "." + element.id + "').selectedIndex = 0;";
-                            html += "vscode.postMessage({";
-                                html += "command: 'opt_list',";
-                                html += "id: '" + this.id + "." + element.id +"',";
-                                html += "value: 0";
-                            html += "});";
-                        html += "}";
+                    html += "if(document.getElementById('" + this.id + "." + element.id + "').disabled === true){";
+                    html += "document.getElementById('" + this.id + "." + element.id + "').selectedIndex = 0;";
+                    html += "vscode.postMessage({";
+                    html += "command: 'opt_list',";
+                    html += "id: '" + this.id + "." + element.id + "',";
+                    html += "value: 0";
+                    html += "});";
+                    html += "}";
+                    html += "document.getElementById('" + this.id + "." + element.enableWhen.target + "').addEventListener('change', function() {";
+                    html += "document.getElementById('" + this.id + "." + element.id + "').disabled = true;";
+                    element.enableWhen.caseValues.forEach((it: any) => {
+                        html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('" + this.id + "." + element.id + "').disabled = false; }";
+                    });
+                    html += "if(document.getElementById('" + this.id + "." + element.id + "').disabled === true){";
+                    html += "document.getElementById('" + this.id + "." + element.id + "').selectedIndex = 0;";
+                    html += "vscode.postMessage({";
+                    html += "command: 'opt_list',";
+                    html += "id: '" + this.id + "." + element.id + "',";
+                    html += "value: 0";
+                    html += "});";
+                    html += "}";
                     html += "});";
                     html += "</script>";
                 }
@@ -334,15 +332,14 @@ export class ReviewPoint {
         return html;
     }
 
-    private loadOptionsAsArrayObject(context :vscode.ExtensionContext)
-    {
+    private loadOptionsAsArrayObject(context: vscode.ExtensionContext) {
         return JSON.parse(fs.readFileSync(path.join(context.extensionPath, "configuration", "optionalFormat.json")).toString());
     }
 
-    public updateOption(key :string, value :any) {
-        let tgt = this.options[this.options.findIndex(x => {return x.key === key;})];
+    public updateOption(key: string, value: any) {
+        let tgt = this.options[this.options.findIndex(x => { return x.key === key; })];
 
-        if(tgt) {
+        if (tgt) {
             tgt.key = key;
             tgt.value = value;
         }
@@ -352,8 +349,8 @@ export class ReviewPoint {
 export class ReviewPointManager {
 
     private rp_list: ReviewPoint[] = [];
-
     private history: string[] = [];
+    private commitMessages: string[] = [];
 
     private version: number = 0;
 
@@ -366,13 +363,14 @@ export class ReviewPointManager {
         this.importIfExist();
     }
 
-    public commit(save_path: string) {
+    public commit(save_path: string, message: string) {
         // save this version's workspace folder path
         this.history.push(vscode.workspace.workspaceFolders![0].uri.fsPath);
+        this.commitMessages.push(message);
         this.part.push(this.getOppositePart()); // you should do this before updating version!
         this.version++;
         this.rp_list.forEach(element => {
-            if(element.isClosed === false) {
+            if (element.isClosed === false) {
                 element.commit(this.version);
             }
         });
@@ -381,28 +379,29 @@ export class ReviewPointManager {
     }
 
     public revert(save_path: string) {
-        if(this.version < 1) {
+        if (this.version < 1) {
             return;
         }
         this.part.pop();
         this.history.pop();
+        this.commitMessages.pop();
 
-        let remove_id_list :string[]= [];
+        let remove_id_list: string[] = [];
         this.rp_list.forEach(element => {
-            if(element.isClosed === true) {
-                if(element.version === this.version) {
-                    if(element.history.length === 0) {
+            if (element.isClosed === true) {
+                if (element.version === this.version) {
+                    if (element.history.length === 0) {
                         // remove element itself because history is now empty.
                         // !NOTICE: Do not remove element here because current outer Foreach gonna be broken!
                         remove_id_list.push(element.id);
                     }
                     else {
-                        element.revert()
+                        element.revert();
                     }
                 }
             }
             else {
-                if(element.history.length === 0) {
+                if (element.history.length === 0) {
                     // remove element itself because history is now empty.
                     // !NOTICE: Do not remove element here because current outer Foreach gonna be broken!
                     remove_id_list.push(element.id);
@@ -415,7 +414,7 @@ export class ReviewPointManager {
 
         // remove elements in remove list
         remove_id_list.forEach(element => {
-            this.rp_list.splice(this.rp_list.findIndex(it => {return it.id === element;})  ,1);
+            this.rp_list.splice(this.rp_list.findIndex(it => { return it.id === element; }), 1);
         });
         this.version--;
 
@@ -428,26 +427,26 @@ export class ReviewPointManager {
     }
 
     private export(save_path: string) {
-        
+
         let save_dir = path.join(save_path, '.vscode');
 
         fs.exists(save_dir, (exists) => {
-            if(exists === true) {
+            if (exists === true) {
                 fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
-                    
-                    if(err) {
+
+                    if (err) {
                         vscode.window.showErrorMessage(err.message);
                     }
                 });
             }
             else {
                 fs.mkdir(save_dir, (err) => {
-                    if(err) {
+                    if (err) {
                         vscode.window.showErrorMessage(err.message);
                     }
                     else {
-                        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {                   
-                            if(err) {
+                        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
+                            if (err) {
                                 vscode.window.showErrorMessage(err.message);
                             }
                         });
@@ -488,27 +487,26 @@ export class ReviewPointManager {
         if (rp) {
             if (comment !== rp.comment) {
                 rp.comment = comment;
-                if(this.part[this.version] === ReviewPointManager.REVIEWEE){ rp.updateDoneTime(); }
+                if (this.part[this.version] === ReviewPointManager.REVIEWEE) { rp.updateDoneTime(); }
             }
         }
     }
 
-    public add(file: string, range: vscode.Range, context :vscode.ExtensionContext) {
+    public add(file: string, range: vscode.Range, context: vscode.ExtensionContext) {
         let rp = new ReviewPoint(this.version, file, range);
         rp.initializeOption(context);
         rp.setAddTime();
         this.rp_list.push(rp);
     }
 
-    public close(cls_id :string) {
+    public close(cls_id: string) {
         let rp = this.findById(cls_id.replace("cls.", ""));
 
-        if(rp!.isClosed === false) {
+        if (rp!.isClosed === false) {
             rp!.isClosed = true;
         }
-        else
-        {
-            if(rp!.version === this.version) {
+        else {
+            if (rp!.version === this.version) {
                 rp!.isClosed = false;
             }
         }
@@ -522,12 +520,11 @@ export class ReviewPointManager {
         }
     }
 
-    public getSummaryAsHtml()
-    {
+    public getSummaryAsHtml() {
         let html: string = "";
         html += "<span class='item2'>current version: </span>" + this.version + "<br/>";
         html += "<div><span class='item2'>current part: </span>";
-        if(this.part[this.version] === ReviewPointManager.REVIEWER) {
+        if (this.part[this.version] === ReviewPointManager.REVIEWER) {
             html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>reviewer</label>";
             html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewee</label>";
         }
@@ -535,48 +532,57 @@ export class ReviewPointManager {
             html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewer</label>";
             html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>reviewee</label>";
         }
-
         html += "</div>";
+        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼show commit messages</a>";
+        html += "</div>";
+        html += "<div id='commit-history'>";
+
+
+        for (var i = 0; i < this.commitMessages.length; i++) {
+            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace("\n", "<br/>")}</div></div>`;
+        }
+        html += "</div>";
+
         return html;
     }
 
-    public getAsHtml(context :vscode.ExtensionContext, refineBy?:string, sortBy?:string, value?: string) {
+    public getAsHtml(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
         let html: string = "";
         let list = undefined;
 
-        if(refineBy === "unclosed") {
-            list = this.rp_list.filter((value)=>{
+        if (refineBy === "unclosed") {
+            list = this.rp_list.filter((value) => {
                 return value.isClosed === false;
             });
         }
-        else if(refineBy === "closed") {
-            list = this.rp_list.filter((value)=>{
+        else if (refineBy === "closed") {
+            list = this.rp_list.filter((value) => {
                 return value.isClosed === true;
             });
         }
-        else if(refineBy === "refine.file") {
-            list = this.rp_list.filter((val)=>{
+        else if (refineBy === "refine.file") {
+            list = this.rp_list.filter((val) => {
                 return val.file.includes(value!);
             });
         }
-        else if(sortBy === "file") {
-            list = this.rp_list.slice().sort((a, b)=> {
-                if(a.file !== b.file) {
-                    return (a.file < b.file)?-1:1;
+        else if (sortBy === "file") {
+            list = this.rp_list.slice().sort((a, b) => {
+                if (a.file !== b.file) {
+                    return (a.file < b.file) ? -1 : 1;
                 }
-                else 
-                {
-                    return (a.range.start.isBefore(b.range.start))?-1:1;
+                else {
+                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
                 }
             });
         }
-        else if(sortBy === "version") {
-            list = this.rp_list.slice().sort((a, b)=> {
+        else if (sortBy === "version") {
+            list = this.rp_list.slice().sort((a, b) => {
                 let ver_a, ver_b;
 
-                ver_a = (a.history === [])?a.version:a.history[0].version;
-                ver_b = (a.history === [])?b.version:b.history[0].version;
-                
+                ver_a = (a.history === []) ? a.version : a.history[0].version;
+                ver_b = (a.history === []) ? b.version : b.history[0].version;
+
                 return ver_a - ver_b;
             });
         }
@@ -590,9 +596,9 @@ export class ReviewPointManager {
 
         // distinguish between reviewer and reviewee
         html += "<style>";
-        for(var i = 0; i <= this.version; i++){
+        for (var i = 0; i <= this.version; i++) {
             html += ".ver" + i + "{";
-            if(this.part[i] === ReviewPointManager.REVIEWER) {
+            if (this.part[i] === ReviewPointManager.REVIEWER) {
                 html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
             }
             else {
@@ -745,6 +751,7 @@ export class ReviewPointManager {
 
         json += JSON.stringify({
             history: this.history,
+            commitMessages: this.commitMessages,
             version: this.version,
             part: this.part,
             rp_list: this.rp_list
@@ -759,8 +766,9 @@ export class ReviewPointManager {
             let j = JSON.parse(json);
 
             this.history = j.history;
+            this.commitMessages = (j.commitMessages)?j.commitMessages : [];
             this.version = j.version;
-            this.part    = j.part;
+            this.part = j.part;
 
             this.rp_list = [];
 
@@ -774,8 +782,7 @@ export class ReviewPointManager {
         }
     }
 
-    public updateOption(id :string, value :any)
-    {
+    public updateOption(id: string, value: any) {
         let sections = id.split(".");
         let rp_id = sections[0];
         let opt_key = sections[1];
@@ -796,7 +803,7 @@ export class ReviewPointManager {
     }
 
     getOppositePart() {
-        if(this.part[this.version] === ReviewPointManager.REVIEWEE) {
+        if (this.part[this.version] === ReviewPointManager.REVIEWEE) {
             return ReviewPointManager.REVIEWER;
         }
         else {

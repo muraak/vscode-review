@@ -149,11 +149,11 @@ function showManageWindow(context: vscode.ExtensionContext) {
 
                     if (message.message === "") {
                         vscode.window.showErrorMessage(
-                            "Please commit with message.", d
+                            "vscode-review: Aborting commit due to empty commit message.",
                             { modal: true },);
                     }
                     else {
-                        reviewPointManager.commit(vscode.workspace.workspaceFolders![0].uri.fsPath);
+                        reviewPointManager.commit(vscode.workspace.workspaceFolders![0].uri.fsPath, message.message);
                         // update html
                         if (wv_panel) {
                             wv_panel.webview.html = getManageWindowHtml(context);
