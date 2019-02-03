@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ReviewPointManager } from './reviewPointManager';
-import {convert} from './converter';
+import { convert } from './converter';
 
 
 let _context: vscode.ExtensionContext;
@@ -81,14 +81,15 @@ function showManageWindow(context: vscode.ExtensionContext) {
     else {
         // create and show webview panel
         wv_panel = vscode.window.createWebviewPanel(
-            "rgDetailSearch", "Review Point List", vscode.ViewColumn.Beside, 
+            "rgDetailSearch", "Review Point List", vscode.ViewColumn.Beside,
             {
                 enableScripts: true,
                 // And restric the webview to only loading content 
                 // from our extension's `recource` directory.
                 localResourceRoots: [
-                            vscode.Uri.file(path.join(context.extensionPath, 'resource'))
-            ] });
+                    vscode.Uri.file(path.join(context.extensionPath, 'resource'))
+                ]
+            });
 
         // update html
         wv_panel.webview.html = getManageWindowHtml(context);
@@ -114,16 +115,16 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     return;
                 case 'remove':
                     vscode.window.showWarningMessage('Are you sure to remove?', { modal: true },
-                    { title: 'OK', isCloseAffordance: false },
-                    { title: 'Cancel', isCloseAffordance: true }).then((reason) => {
-                        if(reason!.title === "OK") {
-                            reviewPointManager.remove(message.id);
-                            // update html
-                            if (wv_panel) {
-                                wv_panel.webview.html = getManageWindowHtml(context);
+                        { title: 'OK', isCloseAffordance: false },
+                        { title: 'Cancel', isCloseAffordance: true }).then((reason) => {
+                            if (reason!.title === "OK") {
+                                reviewPointManager.remove(message.id);
+                                // update html
+                                if (wv_panel) {
+                                    wv_panel.webview.html = getManageWindowHtml(context);
+                                }
                             }
-                        }
-                    });
+                        });
                     return;
                 case 'revice':
                     reviewPointManager.reviceRange(message.id, previous_textEditor);
@@ -145,10 +146,18 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     }
                     return;
                 case 'commit':
-                    reviewPointManager.commit(vscode.workspace.workspaceFolders![0].uri.fsPath);
-                    // update html
-                    if (wv_panel) {
-                        wv_panel.webview.html = getManageWindowHtml(context);
+
+                    if (message.message === "") {
+                        vscode.window.showErrorMessage(
+                            "Please commit with message.", 
+                            { modal: true },);
+                    }
+                    else {
+                        reviewPointManager.commit(vscode.workspace.workspaceFolders![0].uri.fsPath);
+                        // update html
+                        if (wv_panel) {
+                            wv_panel.webview.html = getManageWindowHtml(context);
+                        }
                     }
                     return;
                 case 'revert':
@@ -180,14 +189,14 @@ function showManageWindow(context: vscode.ExtensionContext) {
                 case 'refine_with_value':
                     // update html with filter
                     if (wv_panel) {
-                        wv_panel.webview.html 
+                        wv_panel.webview.html
                             = getManageWindowHtml(context, message.id, undefined, message.value);
                     }
                     return;
                 case 'sort':
                     // update html with sort
                     if (wv_panel) {
-                        wv_panel.webview.html 
+                        wv_panel.webview.html
                             = getManageWindowHtml(context, undefined, message.id, undefined);
                     }
                     return;
