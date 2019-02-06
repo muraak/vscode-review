@@ -540,7 +540,7 @@ export class ReviewPointManager {
 
 
         for (var i = 0; i < this.commitMessages.length; i++) {
-            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace("\n", "<br/>")}</div></div>`;
+            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
         }
         html += "</div>";
 

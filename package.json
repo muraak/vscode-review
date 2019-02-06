@@ -47,6 +47,11 @@
                     "scope": "resource",
                     "type": "string",
                     "default": ""
+                },
+                "review.commitMessageTemplete": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": ""
                 }
             }
         }

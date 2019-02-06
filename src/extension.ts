@@ -147,9 +147,9 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     return;
                 case 'commit':
 
-                    if (message.message === "") {
+                    if (message.message === "" || message.message === vscode.workspace.getConfiguration("review", null).get<string>("commitMessageTemplete")) {
                         vscode.window.showErrorMessage(
-                            "vscode-review: Aborting commit due to empty commit message.",
+                            "vscode-review: Aborting commit due to empty or same as default commit message.",
                             { modal: true },);
                     }
                     else {
@@ -238,6 +238,7 @@ function getManageWindowHtml(context: vscode.ExtensionContext, refineBy?: string
     const $ = cheerio.load(html);
     $("#summary").html(reviewPointManager.getSummaryAsHtml());
     $("#rptable").html(reviewPointManager.getAsHtml(context, refineBy, sortBy, value));
+    $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
 
     return $.html();
 }
