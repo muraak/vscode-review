@@ -326,6 +326,7 @@
     <table border="0" id="rptable">
     </table>
     <script>
+        console.log("test"); // for debugging on devtool
         var rps = document.getElementsByClassName('rp');
         Array.prototype.forEach.call(rps, function (element) {
             element.onclick = function () {
@@ -419,13 +420,15 @@
             });
         };
 
-        window.onkeydown = function () {
+        window.onkeyup = function(event){
+
+            // Pressing multiple keys simultaneously(such as ctrl + s) is not recognize by onkeydown on Windows...
             if ((event.ctrlKey || event.metaKey) && event.which == 83) {
                 vscode.postMessage({
                     command: "save"
                 });
-            } z
-        };
+            }
+        }
 
         document.getElementById("revert").onclick = function () {
             vscode.postMessage({
