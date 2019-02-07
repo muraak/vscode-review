@@ -52,6 +52,12 @@
                     "scope": "resource",
                     "type": "string",
                     "default": ""
+                },
+                "review.locale": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": "en",
+                    "enum": ["en", "jp"]
                 }
             }
         }

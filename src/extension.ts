@@ -230,15 +230,32 @@ function addReviewPoint() {
 }
 
 function getManageWindowHtml(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
-    let html = fs.readFileSync(
-        vscode.Uri.file(path.join(context.extensionPath, 'html', 'manageWindow.html')).fsPath,
-        'utf8');
-
+    let html = "";
     const cheerio = require('cheerio');
-    const $ = cheerio.load(html);
-    $("#summary").html(reviewPointManager.getSummaryAsHtml());
-    $("#rptable").html(reviewPointManager.getAsHtml(context, refineBy, sortBy, value));
-    $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
+    let $;
+
+    if (vscode.workspace.getConfiguration("review", null).get<string>("locale") === "jp") {
+        html = fs.readFileSync(
+            vscode.Uri.file(path.join(context.extensionPath, 'html', 'manageWindow_jpn.html')).fsPath,
+            'utf8');
+
+        $ = cheerio.load(html);
+
+        $("#summary").html(reviewPointManager.getSummaryAsHtmlInJpn());
+        $("#rptable").html(reviewPointManager.getAsHtmlInJpn(context, refineBy, sortBy, value));
+        $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
+    }
+    else {
+        html = fs.readFileSync(
+            vscode.Uri.file(path.join(context.extensionPath, 'html', 'manageWindow.html')).fsPath,
+            'utf8');
+        
+        $ = cheerio.load(html);
+
+        $("#summary").html(reviewPointManager.getSummaryAsHtml());
+        $("#rptable").html(reviewPointManager.getAsHtml(context, refineBy, sortBy, value));
+        $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
+    }
 
     return $.html();
 }

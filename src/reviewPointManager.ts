@@ -229,6 +229,61 @@ export class ReviewPoint {
         return html;
     }
 
+    public getAsHtmlInJpn(context: vscode.ExtensionContext) {
+        let html: string = "";
+
+        if (this.isClosed === true) {
+            html += "<tr><td><div class='rp_frame rp_closed'>";
+        }
+        else {
+            html += "<tr><td><div class='rp_frame'>";
+        }
+        html += "<div class='btn-container'>";
+        // octicon:https://octicons.github.com/
+        // below svg is hard copy of 'x.svg' of octicon.
+        html += `<div title="レビューポイントを削除します"><svg class='remove x' id='rmv.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg></div>`;
+        // below svg is hard copy of 'check.svg' of octicon.
+        html += `<div title="レビューポイントをクローズします"><svg class='close check' id='cls.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg></div>`;
+        // below svg is hard copy of 'sync.svg' of octicon.
+        html += `<div title="指摘位置を現在の選択範囲に更新します"><svg class='revice sync tooltip' id='rev.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M10.24 7.4a4.15 4.15 0 0 1-1.2 3.6 4.346 4.346 0 0 1-5.41.54L4.8 10.4.5 9.8l.6 4.2 1.31-1.26c2.36 1.74 5.7 1.57 7.84-.54a5.876 5.876 0 0 0 1.74-4.46l-1.75-.34zM2.96 5a4.346 4.346 0 0 1 5.41-.54L7.2 5.6l4.3.6-.6-4.2-1.31 1.26c-2.36-1.74-5.7-1.57-7.85.54C.5 5.03-.06 6.65.01 8.26l1.75.35A4.17 4.17 0 0 1 2.96 5z'/></svg></div>`;
+        html += "</div>";
+        html += "<div id=" + this.id + " class='rp'>";
+        html += "<span class='item2'>指摘ファイル: </span>" + this.file + "<br/>";
+        html += "<span class='item2'>指摘位置: </span>(" + this.range.start.line.toString() + ", ";
+        html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
+        html += "<br/>";
+        html += "</div>";
+
+        html += "<div onclick='obj=document.getElementById(\"optional." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼オプション情報を表示</a>";
+        html += "</div>";
+        html += "<div id='optional." + this.id + "' class='optional'>";
+        html += this.getOptionsAsHtml(context);
+        html += "</div>";
+
+        if (this.isClosed === true) {
+            html += "<div onclick='obj=document.getElementById(\"comments." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+            html += "<a class='item2' style='cursor:pointer;'>▼コメントを表示</a>";
+            html += "</div>";
+            html += "<div id='comments." + this.id + "' class='closedComments'>";
+        }
+        this.history.forEach(e => {
+            html += "<span class='item2 ver" + e.version + "'>コメント履歴(ver." + e.version + ") by " + e.author + ": </span><br/>";
+            html += "<div class='history'>" + e.comment + "</div>";
+        });
+        if (this.isClosed !== true) {
+            html += "<span class='item2 ver" + this.version + "'>指摘コメント(ver." + this.version + ") by " + this.author + ": </span><br/>";
+            html += "<div class='comment' id='cmt." + this.id + "'>" + this.comment + "</div>";
+        } else {
+            html += "</div>";
+            html += "<span class='item2'>このレビューポイントはクローズ済みです。(ver." + this.version + ", クローズ者: " + this.author + ")</span><br/>";
+        }
+
+        html += "</div></td></tr>";
+
+        return html;
+    }
+
 
     public initializeOption(context: vscode.ExtensionContext) {
         try {
@@ -547,6 +602,33 @@ export class ReviewPointManager {
         return html;
     }
 
+    public getSummaryAsHtmlInJpn() {
+        let html: string = "";
+        html += "<span class='item2'>現在のバージョン: </span>" + this.version + "<br/>";
+        html += "<div><span class='item2'>現在の担当: </span>";
+        if (this.part[this.version] === ReviewPointManager.REVIEWER) {
+            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>指摘者</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>コーダ</label>";
+        }
+        else {
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>指摘者</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>コーダ</label>";
+        }
+        html += "</div>";
+        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼コミットメッセージを表示</a>";
+        html += "</div>";
+        html += "<div id='commit-history'>";
+
+
+        for (var i = 0; i < this.commitMessages.length; i++) {
+            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
+        }
+        html += "</div>";
+
+        return html;
+    }
+
     public getAsHtml(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
         let html: string = "";
         let list = undefined;
@@ -592,6 +674,70 @@ export class ReviewPointManager {
 
         list!.forEach(element => {
             html += element.getAsHtml(context);
+        });
+
+        // distinguish between reviewer and reviewee
+        html += "<style>";
+        for (var i = 0; i <= this.version; i++) {
+            html += ".ver" + i + "{";
+            if (this.part[i] === ReviewPointManager.REVIEWER) {
+                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
+            }
+            else {
+                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
+            }
+            html += "}";
+        }
+        html += "</style>";
+
+        return html;
+    }
+
+    public getAsHtmlInJpn(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
+        let html: string = "";
+        let list = undefined;
+
+        if (refineBy === "unclosed") {
+            list = this.rp_list.filter((value) => {
+                return value.isClosed === false;
+            });
+        }
+        else if (refineBy === "closed") {
+            list = this.rp_list.filter((value) => {
+                return value.isClosed === true;
+            });
+        }
+        else if (refineBy === "refine.file") {
+            list = this.rp_list.filter((val) => {
+                return val.file.includes(value!);
+            });
+        }
+        else if (sortBy === "file") {
+            list = this.rp_list.slice().sort((a, b) => {
+                if (a.file !== b.file) {
+                    return (a.file < b.file) ? -1 : 1;
+                }
+                else {
+                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
+                }
+            });
+        }
+        else if (sortBy === "version") {
+            list = this.rp_list.slice().sort((a, b) => {
+                let ver_a, ver_b;
+
+                ver_a = (a.history === []) ? a.version : a.history[0].version;
+                ver_b = (a.history === []) ? b.version : b.history[0].version;
+
+                return ver_a - ver_b;
+            });
+        }
+        else {
+            list = this.rp_list;
+        }
+
+        list!.forEach(element => {
+            html += element.getAsHtmlInJpn(context);
         });
 
         // distinguish between reviewer and reviewee
