@@ -1,10 +1,11 @@
 {
     "name": "vscode-review",
     "displayName": "vscode-review",
-    "description": "helping code review on vscode",
-    "version": "0.0.3",
+    "description": "make code review efficient on vscode",
+    "version": "0.0.4",
     "author": "muraak",
     "publisher": "muraak",
+    "repository": {"url" : "https://github.com/muraak/vscode-review.git"},
     "engines": {
         "vscode": "^1.29.0"
     },
@@ -57,7 +58,10 @@
                     "scope": "resource",
                     "type": "string",
                     "default": "en",
-                    "enum": ["en", "jp"]
+                    "enum": [
+                        "en",
+                        "jp"
+                    ]
                 }
             }
         }
@@ -84,6 +88,7 @@
         "html2plaintext": "^2.1.0",
         "request": "^2.88.0",
         "shortid": "^2.2.14",
+        "vsce": "^1.57.0",
         "xlsx-populate": "^1.17.0"
     }
 }
