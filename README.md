@@ -2,7 +2,7 @@
 
 vscodeでコードレビューを効率的に実施するための拡張機能です。
 
-![overview](resources/overview.gif)
+![overview](resources/overview_new.gif)
 
 ## 機能
 ---
