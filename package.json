@@ -5,7 +5,9 @@
     "version": "0.0.4",
     "author": "muraak",
     "publisher": "muraak",
-    "repository": {"url" : "https://github.com/muraak/vscode-review.git"},
+    "repository": {
+        "url": "https://github.com/muraak/vscode-review.git"
+    },
     "engines": {
         "vscode": "^1.29.0"
     },
@@ -78,7 +80,7 @@
         "@types/node": "^8.10.25",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.21"
+        "vscode": "^1.1.29"
     },
     "dependencies": {
         "cheerio": "^1.0.0-rc.2",
