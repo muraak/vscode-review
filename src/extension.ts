@@ -6,11 +6,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ReviewPointManager } from './reviewPointManager';
 import { convert } from './converter';
-
+import { print, debug } from 'util';
+import * as child_process from 'child_process';
+import * as iconv from "iconv-lite";
 
 let _context: vscode.ExtensionContext;
 
 let reviewPointManager: ReviewPointManager;
+
+let chan :vscode.OutputChannel | undefined = undefined;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -30,12 +34,43 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('review.addReviewPoint', addReviewPoint));
     context.subscriptions.push(vscode.commands.registerCommand('review.convert', () => {
         vscode.window.showOpenDialog({
-            filters: {
-                'DR記録ファイル': ['xlsx', 'xlsm']
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: "Choose output location"
+        }).then(out_path => {
+            if(out_path)
+            {
+                var command = vscode.Uri.parse(vscode.workspace.getConfiguration("review", null).get<string>("converter.converterPath")!).fsPath;
+                var templete = vscode.workspace.getConfiguration("review", null).get<string>("converter.converterTempleteFilePath")!;
+                var input = path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, ".vscode", "vscode-review.json");
+                child_process.execFile(command, [ templete, input,out_path[0].fsPath], {
+                    encoding: "buffer"
+                },(error, stdout, stderr) => {
+                    if(error)
+                    {
+                        vscode.window.showInformationMessage(iconv.decode(stderr, "shift-jis"));
+                        vscode.debug.activeDebugConsole.appendLine(iconv.decode(stderr, "shift-jis"));
+                    }
+                    else 
+                    {
+                        vscode.window.showInformationMessage(iconv.decode(stdout, "shift-jis"));
+                        if(!chan){
+                            chan = vscode.window.createOutputChannel("vscode-review");
+                        }
+                        chan.appendLine(iconv.decode(stdout, "shift-jis"));
+                        chan.show();
+                    }
+                });
             }
-        }).then((file) => {
-            convert(file![0].fsPath);
         });
+        // vscode.window.showOpenDialog({
+        //     filters: {
+        //         'DR記録ファイル': ['xlsx', 'xlsm']
+        //     }
+        // }).then((file) => {
+        //     convert(file![0].fsPath);
+        // });
     }));
 
     _context = context;

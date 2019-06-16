@@ -64,6 +64,16 @@
                         "en",
                         "jp"
                     ]
+                },
+                "review.converter.converterPath": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": ""
+                },
+                "review.converter.converterTempleteFilePath": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": ""
                 }
             }
         }
@@ -83,11 +93,13 @@
         "vscode": "^1.1.29"
     },
     "dependencies": {
+        "@types/iconv": "^2.1.16",
         "cheerio": "^1.0.0-rc.2",
         "dateformat": "^3.0.3",
         "event-stream": "^3.3.4",
         "g": "^2.0.1",
         "html2plaintext": "^2.1.0",
+        "iconv-lite": "^0.4.24",
         "request": "^2.88.0",
         "shortid": "^2.2.14",
         "vsce": "^1.57.0",
