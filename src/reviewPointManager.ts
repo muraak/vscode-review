@@ -338,7 +338,7 @@ export class ReviewPoint {
                 html += "<select class='opt_list cp_ipselect cp_sl01' id='" + this.id + "." + element.id + "'>";
 
                 element.listValues.forEach((elm: any) => {
-                    if (elm.value === value) {
+                    if (elm.value.toString() === value.toString()) {
                         html += "<option value=" + elm.value + " selected>" + elm.name + "</option>";
                     }
                     else {

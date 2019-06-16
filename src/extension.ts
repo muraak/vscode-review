@@ -171,7 +171,7 @@ function showManageWindow(context: vscode.ExtensionContext) {
                     reviewPointManager.updateOption(message.id, message.value);
                     return;
                 case 'opt_list':
-                    reviewPointManager.updateOption(message.id, Number.parseInt(message.value));
+                    reviewPointManager.updateOption(message.id, message.value);
                     return;
                 case 'part':
                     reviewPointManager.switchCurrentPart();

@@ -115,16 +115,16 @@
         "name": "作りこみフェーズ",
         "listValues": [
             {"name": "-",                               "value": 0},
-            { "name": "既存開発（流用元）",             "value": 1},
-            { "name": "製品企画",                       "value": 2},
-            { "name": "基本仕様",                       "value": 3},
-            { "name": "I/F仕様",                        "value": 4},
-            { "name": "外部仕様",                       "value": 5},
-            { "name": "S/W設計(アーキテクチャ設計)",    "value": 6},
-            { "name": "S/W設計(S/W仕様書)",             "value": 7},
-            { "name": "S/W設計(S/W設計書)",             "value": 8},
-            { "name": "内部設計",                       "value": 9},
-            { "name": "デバッグ",                       "value": 10}
+            { "name": "既存開発（流用元）",             "value": "L"},
+            { "name": "製品企画",                       "value": "P"},
+            { "name": "基本仕様",                       "value": "K"},
+            { "name": "I/F仕様",                        "value": "I"},
+            { "name": "外部仕様",                       "value": "G"},
+            { "name": "S/W設計(アーキテクチャ設計)",    "value": "S1"},
+            { "name": "S/W設計(S/W仕様書)",             "value": "S2"},
+            { "name": "S/W設計(S/W設計書)",             "value": "S3"},
+            { "name": "内部設計",                       "value": "N"},
+            { "name": "デバッグ",                       "value": "D"}
         ],
         "defaultValue": 0
     }
