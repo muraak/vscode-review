@@ -5,8 +5,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ReviewPointManager } from './reviewPointManager';
-import { convert } from './converter';
-import { print, debug } from 'util';
 import * as child_process from 'child_process';
 import * as iconv from "iconv-lite";
 
