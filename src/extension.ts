@@ -48,7 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
                     if(error)
                     {
                         vscode.window.showInformationMessage(iconv.decode(stderr, "shift-jis"));
-                        vscode.debug.activeDebugConsole.appendLine(iconv.decode(stderr, "shift-jis"));
+                        if(!chan){
+                            chan = vscode.window.createOutputChannel("vscode-review");
+                        }
+                        chan.appendLine(iconv.decode(stderr, "shift-jis"));
+                        chan.show();
                     }
                     else 
                     {
