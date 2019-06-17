@@ -2,7 +2,7 @@
     "name": "vscode-review",
     "displayName": "vscode-review",
     "description": "make code review efficient on vscode",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "author": "muraak",
     "publisher": "muraak",
     "repository": {
