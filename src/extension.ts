@@ -40,9 +40,9 @@ export function activate(context: vscode.ExtensionContext) {
             if(out_path)
             {
                 var command = vscode.Uri.parse(vscode.workspace.getConfiguration("review", null).get<string>("converter.converterPath")!).fsPath;
-                var templete = vscode.workspace.getConfiguration("review", null).get<string>("converter.converterTempleteFilePath")!;
+                // var templete = vscode.workspace.getConfiguration("review", null).get<string>("converter.converterTempleteFilePath")!;
                 var input = path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, ".vscode", "vscode-review.json");
-                child_process.execFile(command, [ templete, input,out_path[0].fsPath], {
+                child_process.execFile(command, [ /*templete,*/ input, out_path[0].fsPath], {
                     encoding: "buffer"
                 },(error, stdout, stderr) => {
                     if(error)
