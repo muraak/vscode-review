@@ -7,18 +7,21 @@ import * as path from 'path';
 type KeyValuePair = { key: string, value: any };
 
 export class ReviewPoint {
+
+    // These information should be refered only from current version.
+    readonly id: string;
+    public options: KeyValuePair[] = [];
+    public add_time: Date | undefined = undefined; // should be set once when added first version
+    public done_time: Date | undefined = undefined; // should be updated when committed as reviewee
+    public isClosed: boolean;
+    public history: ReviewPoint[] = []; // The head of the list is recent one and tail is oldest one.
+
+    // These information should be refered from each versions.
+    public version: number; // The version of review that this rp was added(or updated).
     public file: string;
     public range: vscode.Range;
-    public comment: string;
-    readonly id: string;
-    public history: ReviewPoint[] = [];
-    public version: number;
-    public isClosed: boolean;
-    public author: string;
-    public options: KeyValuePair[] = [];
-
-    public add_time: Date | undefined = undefined; // should be set once when added this rp
-    public done_time: Date | undefined = undefined; // should be updated when committed as reviewee
+    public comment: string; // The content of point out.
+    public author: string; // The person who added(or updated) this rp.
 
     setAddTime() {
         if (this.add_time === undefined) { this.add_time = new Date(Date.now()); }
@@ -139,6 +142,33 @@ export class ReviewPoint {
             this.author);
     }
 
+    public initializeOption(context: vscode.ExtensionContext) {
+        try {
+
+            let optionformat = RpOptionConverter.loadOptionsAsArrayObject(context);
+            optionformat.forEach((element: any) => {
+                this.options.push({
+                    key: element!.id,
+                    value: element!.defaultValue
+                });
+            });
+        }
+        catch (e) {
+            vscode.window.showErrorMessage("parsing of optionalFormat.json was failed.\n" + e.message);
+        }
+    }
+
+    public updateOption(key: string, value: any) {
+        let tgt = this.options[this.options.findIndex(x => { return x.key === key; })];
+
+        if (tgt) {
+            tgt.key = key;
+            tgt.value = value;
+        }
+    }
+}
+
+export class RpJsonConverter {
     public static createFromJsonObj(obj: any) {
         let rp = new ReviewPoint(
             obj.version,
@@ -173,11 +203,13 @@ export class ReviewPoint {
 
         return rp;
     }
+}
 
-    public getAsHtml(context: vscode.ExtensionContext) {
+class RpHtmlConverter {
+    public static getAsHtml(context: vscode.ExtensionContext, rp :ReviewPoint) {
         let html: string = "";
 
-        if (this.isClosed === true) {
+        if (rp.isClosed === true) {
             html += "<tr><td><div class='rp_frame rp_closed'>";
         }
         else {
@@ -186,42 +218,42 @@ export class ReviewPoint {
         html += "<div class='btn-container'>";
         // octicon:https://octicons.github.com/
         // below svg is hard copy of 'x.svg' of octicon.
-        html += `<div title="Delete this review point."><svg class='remove x' id='rmv.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg></div>`;
+        html += `<div title="Delete this review point."><svg class='remove x' id='rmv.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg></div>`;
         // below svg is hard copy of 'check.svg' of octicon.
-        html += `<div title="Close this review point."><svg class='close check' id='cls.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg></div>`;
+        html += `<div title="Close this review point."><svg class='close check' id='cls.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg></div>`;
         // below svg is hard copy of 'sync.svg' of octicon.
-        html += `<div title="Update range of this review point with current selection."><svg class='revice sync tooltip' id='rev.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M10.24 7.4a4.15 4.15 0 0 1-1.2 3.6 4.346 4.346 0 0 1-5.41.54L4.8 10.4.5 9.8l.6 4.2 1.31-1.26c2.36 1.74 5.7 1.57 7.84-.54a5.876 5.876 0 0 0 1.74-4.46l-1.75-.34zM2.96 5a4.346 4.346 0 0 1 5.41-.54L7.2 5.6l4.3.6-.6-4.2-1.31 1.26c-2.36-1.74-5.7-1.57-7.85.54C.5 5.03-.06 6.65.01 8.26l1.75.35A4.17 4.17 0 0 1 2.96 5z'/></svg></div>`;
+        html += `<div title="Update range of this review point with current selection."><svg class='revice sync tooltip' id='rev.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M10.24 7.4a4.15 4.15 0 0 1-1.2 3.6 4.346 4.346 0 0 1-5.41.54L4.8 10.4.5 9.8l.6 4.2 1.31-1.26c2.36 1.74 5.7 1.57 7.84-.54a5.876 5.876 0 0 0 1.74-4.46l-1.75-.34zM2.96 5a4.346 4.346 0 0 1 5.41-.54L7.2 5.6l4.3.6-.6-4.2-1.31 1.26c-2.36-1.74-5.7-1.57-7.85.54C.5 5.03-.06 6.65.01 8.26l1.75.35A4.17 4.17 0 0 1 2.96 5z'/></svg></div>`;
         html += "</div>";
-        html += "<div id=" + this.id + " class='rp'>";
-        html += "<span class='item2'>file: </span>" + this.file + "<br/>";
-        html += "<span class='item2'>range: </span>(" + this.range.start.line.toString() + ", ";
-        html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
+        html += "<div id=" + rp.id + " class='rp'>";
+        html += "<span class='item2'>file: </span>" + rp.file + "<br/>";
+        html += "<span class='item2'>range: </span>(" + rp.range.start.line.toString() + ", ";
+        html += rp.range.start.character.toString() + ") to (" + rp.range.end.line.toString() + ", " + rp.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
 
-        html += "<div onclick='obj=document.getElementById(\"optional." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<div onclick='obj=document.getElementById(\"optional." + rp.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
         html += "<a class='item2' style='cursor:pointer;'>▼show optional info</a>";
         html += "</div>";
-        html += "<div id='optional." + this.id + "' class='optional'>";
-        html += this.getOptionsAsHtml(context);
+        html += "<div id='optional." + rp.id + "' class='optional'>";
+        html += RpOptionConverter.getOptionsAsHtml(context, rp);
         html += "</div>";
 
-        if (this.isClosed === true) {
-            html += "<div onclick='obj=document.getElementById(\"comments." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        if (rp.isClosed === true) {
+            html += "<div onclick='obj=document.getElementById(\"comments." + rp.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
             html += "<a class='item2' style='cursor:pointer;'>▼show comments</a>";
             html += "</div>";
-            html += "<div id='comments." + this.id + "' class='closedComments'>";
+            html += "<div id='comments." + rp.id + "' class='closedComments'>";
         }
-        this.history.forEach(e => {
+        rp.history.forEach(e => {
             html += "<span class='item2 ver" + e.version + "'>history(ver." + e.version + ") by " + e.author + ": </span><br/>";
             html += "<div class='history'>" + e.comment + "</div>";
         });
-        if (this.isClosed !== true) {
-            html += "<span class='item2 ver" + this.version + "'>comment(ver." + this.version + ") by " + this.author + ": </span><br/>";
-            html += "<div class='comment' id='cmt." + this.id + "'>" + this.comment + "</div>";
+        if (rp.isClosed !== true) {
+            html += "<span class='item2 ver" + rp.version + "'>comment(ver." + rp.version + ") by " + rp.author + ": </span><br/>";
+            html += "<div class='comment' id='cmt." + rp.id + "'>" + rp.comment + "</div>";
         } else {
             html += "</div>";
-            html += "<span class='item2'>this review point was closed at ver." + this.version + " by " + this.author + "</span><br/>";
+            html += "<span class='item2'>this review point was closed at ver." + rp.version + " by " + rp.author + "</span><br/>";
         }
 
         html += "</div></td></tr>";
@@ -229,10 +261,10 @@ export class ReviewPoint {
         return html;
     }
 
-    public getAsHtmlInJpn(context: vscode.ExtensionContext) {
+    public static getAsHtmlInJpn(context: vscode.ExtensionContext, rp: ReviewPoint) {
         let html: string = "";
 
-        if (this.isClosed === true) {
+        if (rp.isClosed === true) {
             html += "<tr><td><div class='rp_frame rp_closed'>";
         }
         else {
@@ -241,71 +273,57 @@ export class ReviewPoint {
         html += "<div class='btn-container'>";
         // octicon:https://octicons.github.com/
         // below svg is hard copy of 'x.svg' of octicon.
-        html += `<div title="レビューポイントを削除します"><svg class='remove x' id='rmv.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg></div>`;
+        html += `<div title="レビューポイントを削除します"><svg class='remove x' id='rmv.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48L7.48 8z'/></svg></div>`;
         // below svg is hard copy of 'check.svg' of octicon.
-        html += `<div title="レビューポイントをクローズします"><svg class='close check' id='cls.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg></div>`;
+        html += `<div title="レビューポイントをクローズします"><svg class='close check' id='cls.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5L12 5z'/></svg></div>`;
         // below svg is hard copy of 'sync.svg' of octicon.
-        html += `<div title="指摘位置を現在の選択範囲に更新します"><svg class='revice sync tooltip' id='rev.${this.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M10.24 7.4a4.15 4.15 0 0 1-1.2 3.6 4.346 4.346 0 0 1-5.41.54L4.8 10.4.5 9.8l.6 4.2 1.31-1.26c2.36 1.74 5.7 1.57 7.84-.54a5.876 5.876 0 0 0 1.74-4.46l-1.75-.34zM2.96 5a4.346 4.346 0 0 1 5.41-.54L7.2 5.6l4.3.6-.6-4.2-1.31 1.26c-2.36-1.74-5.7-1.57-7.85.54C.5 5.03-.06 6.65.01 8.26l1.75.35A4.17 4.17 0 0 1 2.96 5z'/></svg></div>`;
+        html += `<div title="指摘位置を現在の選択範囲に更新します"><svg class='revice sync tooltip' id='rev.${rp.id}' xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'><path fill-rule='evenodd' d='M10.24 7.4a4.15 4.15 0 0 1-1.2 3.6 4.346 4.346 0 0 1-5.41.54L4.8 10.4.5 9.8l.6 4.2 1.31-1.26c2.36 1.74 5.7 1.57 7.84-.54a5.876 5.876 0 0 0 1.74-4.46l-1.75-.34zM2.96 5a4.346 4.346 0 0 1 5.41-.54L7.2 5.6l4.3.6-.6-4.2-1.31 1.26c-2.36-1.74-5.7-1.57-7.85.54C.5 5.03-.06 6.65.01 8.26l1.75.35A4.17 4.17 0 0 1 2.96 5z'/></svg></div>`;
         html += "</div>";
-        html += "<div id=" + this.id + " class='rp'>";
-        html += "<span class='item2'>指摘ファイル: </span>" + this.file + "<br/>";
-        html += "<span class='item2'>指摘位置: </span>(" + this.range.start.line.toString() + ", ";
-        html += this.range.start.character.toString() + ") to (" + this.range.end.line.toString() + ", " + this.range.end.character.toString() + ")";
+        html += "<div id=" + rp.id + " class='rp'>";
+        html += "<span class='item2'>指摘ファイル: </span>" + rp.file + "<br/>";
+        html += "<span class='item2'>指摘位置: </span>(" + rp.range.start.line.toString() + ", ";
+        html += rp.range.start.character.toString() + ") to (" + rp.range.end.line.toString() + ", " + rp.range.end.character.toString() + ")";
         html += "<br/>";
         html += "</div>";
 
-        html += "<div onclick='obj=document.getElementById(\"optional." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<div onclick='obj=document.getElementById(\"optional." + rp.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
         html += "<a class='item2' style='cursor:pointer;'>▼オプション情報を表示</a>";
         html += "</div>";
-        html += "<div id='optional." + this.id + "' class='optional'>";
-        html += this.getOptionsAsHtml(context);
+        html += "<div id='optional." + rp.id + "' class='optional'>";
+        html += RpOptionConverter.getOptionsAsHtml(context, rp);
         html += "</div>";
 
-        if (this.isClosed === true) {
-            html += "<div onclick='obj=document.getElementById(\"comments." + this.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        if (rp.isClosed === true) {
+            html += "<div onclick='obj=document.getElementById(\"comments." + rp.id + "\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
             html += "<a class='item2' style='cursor:pointer;'>▼コメントを表示</a>";
             html += "</div>";
-            html += "<div id='comments." + this.id + "' class='closedComments'>";
+            html += "<div id='comments." + rp.id + "' class='closedComments'>";
         }
-        this.history.forEach(e => {
+        rp.history.forEach(e => {
             html += "<span class='item2 ver" + e.version + "'>コメント履歴(ver." + e.version + ") by " + e.author + ": </span><br/>";
             html += "<div class='history'>" + e.comment + "</div>";
         });
-        if (this.isClosed !== true) {
-            html += "<span class='item2 ver" + this.version + "'>指摘コメント(ver." + this.version + ") by " + this.author + ": </span><br/>";
-            html += "<div class='comment' id='cmt." + this.id + "'>" + this.comment + "</div>";
+        if (rp.isClosed !== true) {
+            html += "<span class='item2 ver" + rp.version + "'>指摘コメント(ver." + rp.version + ") by " + rp.author + ": </span><br/>";
+            html += "<div class='comment' id='cmt." + rp.id + "'>" + rp.comment + "</div>";
         } else {
             html += "</div>";
-            html += "<span class='item2'>このレビューポイントはクローズ済みです。(ver." + this.version + ", クローズ者: " + this.author + ")</span><br/>";
+            html += "<span class='item2'>このレビューポイントはクローズ済みです。(ver." + rp.version + ", クローズ者: " + rp.author + ")</span><br/>";
         }
 
         html += "</div></td></tr>";
 
         return html;
     }
+}
 
-
-    public initializeOption(context: vscode.ExtensionContext) {
-        try {
-
-            let optionformat = this.loadOptionsAsArrayObject(context);
-            optionformat.forEach((element: any) => {
-                this.options.push({
-                    key: element!.id,
-                    value: element!.defaultValue
-                });
-            });
-        }
-        catch (e) {
-            vscode.window.showErrorMessage("parsing of optionalFormat.json was failed.\n" + e.message);
-        }
-    }
-
-    public getOptionsAsHtml(context: vscode.ExtensionContext) {
+class RpOptionConverter{
+    
+    public static getOptionsAsHtml(context: vscode.ExtensionContext, rp :ReviewPoint) {
 
         let html: string = "<div>";
 
-        let format = this.loadOptionsAsArrayObject(context);
+        let format = RpOptionConverter.loadOptionsAsArrayObject(context);
 
         format.forEach((element: any) => {
 
@@ -313,7 +331,7 @@ export class ReviewPoint {
             let value: any;
 
             try {
-                value = this.options.find(x => { return x.key === element.id; })!.value;
+                value = rp.options.find(x => { return x.key === element.id; })!.value;
             }
             catch
             {
@@ -324,10 +342,10 @@ export class ReviewPoint {
                 // this option is gonna be a checkbox
 
                 if (value === true) {
-                    html += "<input type='checkbox' id='" + this.id + "." + element.id + "' checked='checked' class='opt_chkbox'>" + element.name + "</input><br/>";
+                    html += "<input type='checkbox' id='" + rp.id + "." + element.id + "' checked='checked' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
                 else {
-                    html += "<input type='checkbox' id='" + this.id + "." + element.id + "' class='opt_chkbox'>" + element.name + "</input><br/>";
+                    html += "<input type='checkbox' id='" + rp.id + "." + element.id + "' class='opt_chkbox'>" + element.name + "</input><br/>";
                 }
             }
             else if (element.type === 1) {
@@ -335,7 +353,7 @@ export class ReviewPoint {
 
                 html += "<span style='width: 200px; display: inline-block;'>" + element.name + ": </span>";
                 html += "<div style='width: 200px; display: inline-block;'>";
-                html += "<select class='opt_list cp_ipselect cp_sl01' id='" + this.id + "." + element.id + "'>";
+                html += "<select class='opt_list cp_ipselect cp_sl01' id='" + rp.id + "." + element.id + "'>";
 
                 element.listValues.forEach((elm: any) => {
                     if (elm.value.toString() === value.toString()) {
@@ -351,28 +369,28 @@ export class ReviewPoint {
                 // parse enableWhen setting and add corresponding js code to html
                 if ("enableWhen" in element) {
                     html += "<script>";
-                    html += "document.getElementById('" + this.id + "." + element.id + "').disabled = true;";
+                    html += "document.getElementById('" + rp.id + "." + element.id + "').disabled = true;";
                     element.enableWhen.caseValues.forEach((it: any) => {
-                        html += "if(document.getElementById('" + this.id + "." + element.enableWhen.target + "').options[document.getElementById('" + this.id + "." + element.enableWhen.target + "').selectedIndex].value === '" + it + "'){ document.getElementById('" + this.id + "." + element.id + "').disabled = false; }";
+                        html += "if(document.getElementById('" + rp.id + "." + element.enableWhen.target + "').options[document.getElementById('" + rp.id + "." + element.enableWhen.target + "').selectedIndex].value === '" + it + "'){ document.getElementById('" + rp.id + "." + element.id + "').disabled = false; }";
                     });
-                    html += "if(document.getElementById('" + this.id + "." + element.id + "').disabled === true){";
-                    html += "document.getElementById('" + this.id + "." + element.id + "').selectedIndex = 0;";
+                    html += "if(document.getElementById('" + rp.id + "." + element.id + "').disabled === true){";
+                    html += "document.getElementById('" + rp.id + "." + element.id + "').selectedIndex = 0;";
                     html += "vscode.postMessage({";
                     html += "command: 'opt_list',";
-                    html += "id: '" + this.id + "." + element.id + "',";
+                    html += "id: '" + rp.id + "." + element.id + "',";
                     html += "value: 0";
                     html += "});";
                     html += "}";
-                    html += "document.getElementById('" + this.id + "." + element.enableWhen.target + "').addEventListener('change', function() {";
-                    html += "document.getElementById('" + this.id + "." + element.id + "').disabled = true;";
+                    html += "document.getElementById('" + rp.id + "." + element.enableWhen.target + "').addEventListener('change', function() {";
+                    html += "document.getElementById('" + rp.id + "." + element.id + "').disabled = true;";
                     element.enableWhen.caseValues.forEach((it: any) => {
-                        html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('" + this.id + "." + element.id + "').disabled = false; }";
+                        html += "if(this.options[this.selectedIndex].value === '" + it + "'){ document.getElementById('" + rp.id + "." + element.id + "').disabled = false; }";
                     });
-                    html += "if(document.getElementById('" + this.id + "." + element.id + "').disabled === true){";
-                    html += "document.getElementById('" + this.id + "." + element.id + "').selectedIndex = 0;";
+                    html += "if(document.getElementById('" + rp.id + "." + element.id + "').disabled === true){";
+                    html += "document.getElementById('" + rp.id + "." + element.id + "').selectedIndex = 0;";
                     html += "vscode.postMessage({";
                     html += "command: 'opt_list',";
-                    html += "id: '" + this.id + "." + element.id + "',";
+                    html += "id: '" + rp.id + "." + element.id + "',";
                     html += "value: 0";
                     html += "});";
                     html += "}";
@@ -387,32 +405,23 @@ export class ReviewPoint {
         return html;
     }
 
-    private loadOptionsAsArrayObject(context: vscode.ExtensionContext) {
+    public static loadOptionsAsArrayObject(context: vscode.ExtensionContext) {
         return JSON.parse(fs.readFileSync(path.join(context.extensionPath, "configuration", "optionalFormat.json")).toString());
-    }
-
-    public updateOption(key: string, value: any) {
-        let tgt = this.options[this.options.findIndex(x => { return x.key === key; })];
-
-        if (tgt) {
-            tgt.key = key;
-            tgt.value = value;
-        }
     }
 }
 
 export class ReviewPointManager {
 
-    private rp_list: ReviewPoint[] = [];
-    private history: string[] = [];
-    private commitMessages: string[] = [];
-
-    private version: number = 0;
-
     public static REVIEWER = 0;
     public static REVIEWEE = 1;
 
-    private part: number[] = [ReviewPointManager.REVIEWER];
+    public rp_list: ReviewPoint[] = [];
+    public history: string[] = []; // this can remove now because of no use!
+    public commitMessages: string[] = [];
+
+    public version: number = 0;
+
+    public part: number[] = [ReviewPointManager.REVIEWER];
 
     constructor() {
         this.importIfExist();
@@ -487,7 +496,7 @@ export class ReviewPointManager {
 
         fs.exists(save_dir, (exists) => {
             if (exists === true) {
-                fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
+                fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), ReviewJsonConverter.getAsJSON(this), (err) => {
 
                     if (err) {
                         vscode.window.showErrorMessage(err.message);
@@ -500,7 +509,7 @@ export class ReviewPointManager {
                         vscode.window.showErrorMessage(err.message);
                     }
                     else {
-                        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), this.getAsJSON(), (err) => {
+                        fs.writeFile(path.join(save_path, '.vscode', 'vscode-review.json'), ReviewJsonConverter.getAsJSON(this), (err) => {
                             if (err) {
                                 vscode.window.showErrorMessage(err.message);
                             }
@@ -515,7 +524,7 @@ export class ReviewPointManager {
         try {
             let json: string = fs.readFileSync(
                 path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, ".vscode", "vscode-review.json")).toString();
-            if (this.loadFromJSON(json) === true) {
+            if (ReviewJsonConverter.loadFromJSON(json, this) === true) {
                 vscode.window.showInformationMessage("review file was loaded!");
             }
         }
@@ -573,188 +582,6 @@ export class ReviewPointManager {
         if (tgt) {
             this.rp_list.splice(this.rp_list.indexOf(tgt), 1);
         }
-    }
-
-    public getSummaryAsHtml() {
-        let html: string = "";
-        html += "<span class='item2'>current version: </span>" + this.version + "<br/>";
-        html += "<div><span class='item2'>current part: </span>";
-        if (this.part[this.version] === ReviewPointManager.REVIEWER) {
-            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>reviewer</label>";
-            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewee</label>";
-        }
-        else {
-            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewer</label>";
-            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>reviewee</label>";
-        }
-        html += "</div>";
-        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
-        html += "<a class='item2' style='cursor:pointer;'>▼show commit messages</a>";
-        html += "</div>";
-        html += "<div id='commit-history'>";
-
-
-        for (var i = 0; i < this.commitMessages.length; i++) {
-            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
-        }
-        html += "</div>";
-
-        return html;
-    }
-
-    public getSummaryAsHtmlInJpn() {
-        let html: string = "";
-        html += "<span class='item2'>現在のバージョン: </span>" + this.version + "<br/>";
-        html += "<div><span class='item2'>現在の担当: </span>";
-        if (this.part[this.version] === ReviewPointManager.REVIEWER) {
-            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>指摘者</label>";
-            html += "<label><input type='radio' name='partRadioBtn' value='0'>コーダ</label>";
-        }
-        else {
-            html += "<label><input type='radio' name='partRadioBtn' value='0'>指摘者</label>";
-            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>コーダ</label>";
-        }
-        html += "</div>";
-        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
-        html += "<a class='item2' style='cursor:pointer;'>▼コミットメッセージを表示</a>";
-        html += "</div>";
-        html += "<div id='commit-history'>";
-
-
-        for (var i = 0; i < this.commitMessages.length; i++) {
-            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${this.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
-        }
-        html += "</div>";
-
-        return html;
-    }
-
-    public getAsHtml(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
-        let html: string = "";
-        let list = undefined;
-
-        if (refineBy === "unclosed") {
-            list = this.rp_list.filter((value) => {
-                return value.isClosed === false;
-            });
-        }
-        else if (refineBy === "closed") {
-            list = this.rp_list.filter((value) => {
-                return value.isClosed === true;
-            });
-        }
-        else if (refineBy === "refine.file") {
-            list = this.rp_list.filter((val) => {
-                return val.file.includes(value!);
-            });
-        }
-        else if (sortBy === "file") {
-            list = this.rp_list.slice().sort((a, b) => {
-                if (a.file !== b.file) {
-                    return (a.file < b.file) ? -1 : 1;
-                }
-                else {
-                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
-                }
-            });
-        }
-        else if (sortBy === "version") {
-            list = this.rp_list.slice().sort((a, b) => {
-                let ver_a, ver_b;
-
-                ver_a = (a.history === []) ? a.version : a.history[0].version;
-                ver_b = (a.history === []) ? b.version : b.history[0].version;
-
-                return ver_a - ver_b;
-            });
-        }
-        else {
-            list = this.rp_list;
-        }
-
-        list!.forEach(element => {
-            html += element.getAsHtml(context);
-        });
-
-        // distinguish between reviewer and reviewee
-        html += "<style>";
-        for (var i = 0; i <= this.version; i++) {
-            html += ".ver" + i + "{";
-            if (this.part[i] === ReviewPointManager.REVIEWER) {
-                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
-            }
-            else {
-                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
-            }
-            html += "}";
-        }
-        html += "</style>";
-
-        return html;
-    }
-
-    public getAsHtmlInJpn(context: vscode.ExtensionContext, refineBy?: string, sortBy?: string, value?: string) {
-        let html: string = "";
-        let list = undefined;
-
-        if (refineBy === "unclosed") {
-            list = this.rp_list.filter((value) => {
-                return value.isClosed === false;
-            });
-        }
-        else if (refineBy === "closed") {
-            list = this.rp_list.filter((value) => {
-                return value.isClosed === true;
-            });
-        }
-        else if (refineBy === "refine.file") {
-            list = this.rp_list.filter((val) => {
-                return val.file.includes(value!);
-            });
-        }
-        else if (sortBy === "file") {
-            list = this.rp_list.slice().sort((a, b) => {
-                if (a.file !== b.file) {
-                    return (a.file < b.file) ? -1 : 1;
-                }
-                else {
-                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
-                }
-            });
-        }
-        else if (sortBy === "version") {
-            list = this.rp_list.slice().sort((a, b) => {
-                let ver_a, ver_b;
-
-                ver_a = (a.history === []) ? a.version : a.history[0].version;
-                ver_b = (a.history === []) ? b.version : b.history[0].version;
-
-                return ver_a - ver_b;
-            });
-        }
-        else {
-            list = this.rp_list;
-        }
-
-        list!.forEach(element => {
-            html += element.getAsHtmlInJpn(context);
-        });
-
-        // distinguish between reviewer and reviewee
-        html += "<style>";
-        for (var i = 0; i <= this.version; i++) {
-            html += ".ver" + i + "{";
-            if (this.part[i] === ReviewPointManager.REVIEWER) {
-                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
-            }
-            else {
-                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
-            }
-            html += "}";
-        }
-        html += "</style>";
-
-        return html;
     }
 
     public belongsTo(file: string) {
@@ -892,42 +719,6 @@ export class ReviewPointManager {
 
     }
 
-    public getAsJSON() {
-        let json: string = "";
-
-        json += JSON.stringify({
-            history: this.history,
-            commitMessages: this.commitMessages,
-            version: this.version,
-            part: this.part,
-            rp_list: this.rp_list
-        });
-
-        return json;
-    }
-
-    public loadFromJSON(json: string) {
-
-        try {
-            let j = JSON.parse(json);
-
-            this.history = j.history;
-            this.commitMessages = (j.commitMessages)?j.commitMessages : [];
-            this.version = j.version;
-            this.part = j.part;
-
-            this.rp_list = [];
-
-            j.rp_list.forEach((element: any) => {
-                let rp = ReviewPoint.createFromJsonObj(element);
-                this.rp_list.push(rp);
-            });
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
     public updateOption(id: string, value: any) {
         let sections = id.split(".");
         let rp_id = sections[0];
@@ -954,6 +745,228 @@ export class ReviewPointManager {
         }
         else {
             return ReviewPointManager.REVIEWEE;
+        }
+    }
+}
+
+export class ReviewHtmlConverter{
+    public static getAsHtml(context: vscode.ExtensionContext, manager :ReviewPointManager, refineBy?: string, sortBy?: string, value?: string) {
+        let html: string = "";
+        let list = undefined;
+
+        if (refineBy === "unclosed") {
+            list = manager.rp_list.filter((value) => {
+                return value.isClosed === false;
+            });
+        }
+        else if (refineBy === "closed") {
+            list = manager.rp_list.filter((value) => {
+                return value.isClosed === true;
+            });
+        }
+        else if (refineBy === "refine.file") {
+            list = manager.rp_list.filter((val) => {
+                return val.file.includes(value!);
+            });
+        }
+        else if (sortBy === "file") {
+            list = manager.rp_list.slice().sort((a, b) => {
+                if (a.file !== b.file) {
+                    return (a.file < b.file) ? -1 : 1;
+                }
+                else {
+                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
+                }
+            });
+        }
+        else if (sortBy === "version") {
+            list = manager.rp_list.slice().sort((a, b) => {
+                let ver_a, ver_b;
+
+                ver_a = (a.history === []) ? a.version : a.history[0].version;
+                ver_b = (a.history === []) ? b.version : b.history[0].version;
+
+                return ver_a - ver_b;
+            });
+        }
+        else {
+            list = manager.rp_list;
+        }
+
+        list!.forEach(element => {
+            html += RpHtmlConverter.getAsHtml(context, element);
+        });
+
+        // distinguish between reviewer and reviewee
+        html += "<style>";
+        for (var i = 0; i <= manager.version; i++) {
+            html += ".ver" + i + "{";
+            if (manager.part[i] === ReviewPointManager.REVIEWER) {
+                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
+            }
+            else {
+                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
+            }
+            html += "}";
+        }
+        html += "</style>";
+
+        return html;
+    }
+
+    public static getAsHtmlInJpn(context: vscode.ExtensionContext, manager :ReviewPointManager, refineBy?: string, sortBy?: string, value?: string) {
+        let html: string = "";
+        let list = undefined;
+
+        if (refineBy === "unclosed") {
+            list = manager.rp_list.filter((value) => {
+                return value.isClosed === false;
+            });
+        }
+        else if (refineBy === "closed") {
+            list = manager.rp_list.filter((value) => {
+                return value.isClosed === true;
+            });
+        }
+        else if (refineBy === "refine.file") {
+            list = manager.rp_list.filter((val) => {
+                return val.file.includes(value!);
+            });
+        }
+        else if (sortBy === "file") {
+            list = manager.rp_list.slice().sort((a, b) => {
+                if (a.file !== b.file) {
+                    return (a.file < b.file) ? -1 : 1;
+                }
+                else {
+                    return (a.range.start.isBefore(b.range.start)) ? -1 : 1;
+                }
+            });
+        }
+        else if (sortBy === "version") {
+            list = manager.rp_list.slice().sort((a, b) => {
+                let ver_a, ver_b;
+
+                ver_a = (a.history === []) ? a.version : a.history[0].version;
+                ver_b = (a.history === []) ? b.version : b.history[0].version;
+
+                return ver_a - ver_b;
+            });
+        }
+        else {
+            list = manager.rp_list;
+        }
+
+        list!.forEach(element => {
+            html += RpHtmlConverter.getAsHtmlInJpn(context, element);
+        });
+
+        // distinguish between reviewer and reviewee
+        html += "<style>";
+        for (var i = 0; i <= manager.version; i++) {
+            html += ".ver" + i + "{";
+            if (manager.part[i] === ReviewPointManager.REVIEWER) {
+                html += "color: var(--reviewer-color); font-weight: var(--person-font-weight);";
+            }
+            else {
+                html += "color: var(--reviewee-color); font-weight: var(--person-font-weight);";
+            }
+            html += "}";
+        }
+        html += "</style>";
+
+        return html;
+    }
+
+    public static getSummaryAsHtml(manager: ReviewPointManager) {
+        let html: string = "";
+        html += "<span class='item2'>current version: </span>" + manager.version + "<br/>";
+        html += "<div><span class='item2'>current part: </span>";
+        if (manager.part[manager.version] === ReviewPointManager.REVIEWER) {
+            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>reviewer</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewee</label>";
+        }
+        else {
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>reviewer</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>reviewee</label>";
+        }
+        html += "</div>";
+        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼show commit messages</a>";
+        html += "</div>";
+        html += "<div id='commit-history'>";
+
+
+        for (var i = 0; i < manager.commitMessages.length; i++) {
+            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${manager.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
+        }
+        html += "</div>";
+
+        return html;
+    }
+
+    public static getSummaryAsHtmlInJpn(manager :ReviewPointManager) {
+        let html: string = "";
+        html += "<span class='item2'>現在のバージョン: </span>" + manager.version + "<br/>";
+        html += "<div><span class='item2'>現在の担当: </span>";
+        if (manager.part[manager.version] === ReviewPointManager.REVIEWER) {
+            html += "<label><input type='radio' name='partRadioBtn' value='0' checked='checked'>指摘者</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>コーダ</label>";
+        }
+        else {
+            html += "<label><input type='radio' name='partRadioBtn' value='0'>指摘者</label>";
+            html += "<label><input type='radio' name='partRadioBtn' value='0'checked='checked'>コーダ</label>";
+        }
+        html += "</div>";
+        html += "<div onclick='obj=document.getElementById(\"commit-history\").style; obj.display=(obj.display==\"none\")?\"block\":\"none\";'>";
+        html += "<a class='item2' style='cursor:pointer;'>▼コミットメッセージを表示</a>";
+        html += "</div>";
+        html += "<div id='commit-history'>";
+
+
+        for (var i = 0; i < manager.commitMessages.length; i++) {
+            html += `<div class="commit-history-outer">ver.${i}:<div class="commit-history-inner">${manager.commitMessages[i].replace(/\n|\r|\r\n/g, "<br/>")}</div></div>`;
+        }
+        html += "</div>";
+
+        return html;
+    }
+}
+
+class ReviewJsonConverter{
+    public static getAsJSON(manager :ReviewPointManager) {
+        let json: string = "";
+
+        json += JSON.stringify({
+            history: manager.history,
+            commitMessages: manager.commitMessages,
+            version: manager.version,
+            part: manager.part,
+            rp_list: manager.rp_list
+        });
+
+        return json;
+    }
+
+    public static loadFromJSON(json: string, manager :ReviewPointManager) {
+
+        try {
+            let j = JSON.parse(json);
+
+            manager.history = j.history;
+            manager.commitMessages = (j.commitMessages)?j.commitMessages : [];
+            manager.version = j.version;
+            manager.part = j.part;
+
+            manager.rp_list = [];
+
+            j.rp_list.forEach((element: any) => {
+                let rp = RpJsonConverter.createFromJsonObj(element);
+                manager.rp_list.push(rp);
+            });
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 }

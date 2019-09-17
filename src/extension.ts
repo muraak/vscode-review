@@ -4,7 +4,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ReviewPointManager } from './reviewPointManager';
+import { ReviewPointManager, ReviewHtmlConverter } from './reviewPointManager';
 import * as child_process from 'child_process';
 import * as iconv from "iconv-lite";
 
@@ -278,8 +278,8 @@ function getManageWindowHtml(context: vscode.ExtensionContext, refineBy?: string
 
         $ = cheerio.load(html);
 
-        $("#summary").html(reviewPointManager.getSummaryAsHtmlInJpn());
-        $("#rptable").html(reviewPointManager.getAsHtmlInJpn(context, refineBy, sortBy, value));
+        $("#summary").html(ReviewHtmlConverter.getSummaryAsHtmlInJpn(reviewPointManager));
+        $("#rptable").html(ReviewHtmlConverter.getAsHtmlInJpn(context, reviewPointManager, refineBy, sortBy, value));
         $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
     }
     else {
@@ -289,8 +289,8 @@ function getManageWindowHtml(context: vscode.ExtensionContext, refineBy?: string
         
         $ = cheerio.load(html);
 
-        $("#summary").html(reviewPointManager.getSummaryAsHtml());
-        $("#rptable").html(reviewPointManager.getAsHtml(context, refineBy, sortBy, value));
+        $("#summary").html(ReviewHtmlConverter.getSummaryAsHtml(reviewPointManager));
+        $("#rptable").html(ReviewHtmlConverter.getAsHtml(context, reviewPointManager, refineBy, sortBy, value));
         $("#commit-msg").text(vscode.workspace.getConfiguration("review", null).get("commitMessageTemplete"));
     }
 
